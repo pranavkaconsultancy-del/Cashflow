@@ -1,0 +1,6 @@
+{
+  "name": "Cash Flow Management",
+  "description": "A web-based cash flow management engine for real estate holding companies to replace Excel spreadsheets with modular line item editors, multi-period support, and instant recalculations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
