@@ -7,7 +7,12 @@ import {
   FileText,
   Building2,
   Menu,
-  X
+  X,
+  FolderOpen,
+  Coins,
+  CreditCard,
+  Landmark,
+  Scale
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -19,11 +24,15 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'cashflow', label: 'Cash Flow Sheet', icon: Table },
-    { id: 'ratios', label: 'Financial Ratios', icon: Percent },
-    { id: 'predictions', label: 'Predictions', icon: TrendingUp },
-    { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'projects', label: 'Projects Directory', icon: FolderOpen },
+    { id: 'dashboard', label: 'Executive Dashboard', icon: LayoutDashboard },
+    { id: 'cashflow', label: 'Cash Flow Ledgers', icon: Table },
+    { id: 'collections', label: 'Customer Collections', icon: Coins },
+    { id: 'payments', label: 'Vendor Payments', icon: CreditCard },
+    { id: 'ledger', label: 'Checking Ledger', icon: Landmark },
+    { id: 'budget', label: 'Budget vs Actuals', icon: Scale },
+    { id: 'predictions', label: '30/90-Day Runway', icon: TrendingUp },
+    { id: 'reports', label: 'Report & Statements', icon: FileText },
   ];
 
   const handleTabClick = (id: string) => {

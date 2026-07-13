@@ -3,44 +3,67 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export interface LineItem {
+export interface CustomerCollection {
   id: string;
-  name: string;
-  budgeted: number; // in Rs. Lakhs (Budgeted/Approved)
-  actual: number;   // in Rs. Lakhs (Actual/Taken)
+  customerName: string;
+  amount: number; // Receivable in Rs. Lakhs
+  collectedAmount: number; // Collected in Rs. Lakhs
+  dueDate: string;
+  status: 'Paid' | 'Pending' | 'Overdue';
 }
 
-export interface Section {
+export interface VendorPayment {
   id: string;
-  title: string;
-  letter: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
-  items: LineItem[];
+  vendorName: string;
+  amount: number; // Payable in Rs. Lakhs
+  paidAmount: number; // Paid in Rs. Lakhs
+  dueDate: string;
+  status: 'Paid' | 'Pending' | 'Overdue';
 }
 
-export interface PeriodSections {
-  A: Section;
-  B: Section;
-  C: Section;
-  D: Section;
-  E: Section;
-  F: Section;
+export interface BankTransaction {
+  id: string;
+  date: string;
+  description: string;
+  type: 'Deposit' | 'Withdrawal' | 'Transfer';
+  amount: number; // in Rs. Lakhs
+}
+
+export interface BudgetVsActualItem {
+  category: string;
+  budgeted: number; // Planned budget in Rs. Lakhs
+  actual: number;   // Actual expense in Rs. Lakhs
+}
+
+export interface PeriodInflow {
+  category: string;
+  budgeted: number;
+  actual: number;
+}
+
+export interface PeriodOutflow {
+  category: string;
+  budgeted: number;
+  actual: number;
 }
 
 export interface Period {
   id: string;
-  name: string; // e.g., "Apr-Jun 2026"
-  sections: PeriodSections;
+  name: string; // e.g., "Jan 2026", "Feb 2026"
+  bankBalance: number; // Opening Bank Balance
+  cashInHand: number;  // Opening Cash in Hand
+  inflows: PeriodInflow[];
+  outflows: PeriodOutflow[];
 }
 
-export interface CashFlowTotals {
-  totalA: { budgeted: number; actual: number };
-  totalB: { budgeted: number; actual: number };
-  totalReceipts: { budgeted: number; actual: number };
-  totalC: { budgeted: number; actual: number };
-  totalD: { budgeted: number; actual: number };
-  totalE: { budgeted: number; actual: number };
-  totalPayments: { budgeted: number; actual: number };
-  balanceAvailable: { budgeted: number; actual: number };
-  totalF: { budgeted: number; actual: number };
-  netBalanceAvailable: { budgeted: number; actual: number };
+export interface Project {
+  id: string;
+  name: string;
+  status: 'Planning' | 'Ongoing' | 'Completed' | 'On Hold';
+  financialYear: string; // e.g., "FY 2026-27"
+  periods: Period[];
+  collections: CustomerCollection[];
+  payments: VendorPayment[];
+  transactions: BankTransaction[];
+  budgetVsActual: BudgetVsActualItem[];
 }
