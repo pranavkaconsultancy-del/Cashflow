@@ -19,6 +19,7 @@ export interface VendorPayment {
   paidAmount: number; // Paid in Rs. Lakhs
   dueDate: string;
   status: 'Paid' | 'Pending' | 'Overdue';
+  department?: string;
 }
 
 export interface BankTransaction {
@@ -39,12 +40,14 @@ export interface PeriodInflow {
   category: string;
   budgeted: number;
   actual: number;
+  department?: string;
 }
 
 export interface PeriodOutflow {
   category: string;
   budgeted: number;
   actual: number;
+  department?: string;
 }
 
 export interface Period {
@@ -59,6 +62,7 @@ export interface Period {
 export interface Project {
   id: string;
   name: string;
+  company: string; // e.g., "Vanguard Developers", "Aurelia Group"
   status: 'Planning' | 'Ongoing' | 'Completed' | 'On Hold';
   financialYear: string; // e.g., "FY 2026-27"
   periods: Period[];

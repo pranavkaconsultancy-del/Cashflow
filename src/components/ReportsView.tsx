@@ -122,6 +122,118 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
     };
   }, [project.periods]);
 
+  // Compute live performance metrics for the PDF Report
+  const metrics = useMemo(() => {
+    let opening = project.periods[0] ? (project.periods[0].bankBalance + project.periods[0].cashInHand) : 0;
+    let totalInflow = 0;
+    let totalOutflow = 0;
+
+    project.periods.forEach((p) => {
+      const t = calculatePeriodTotals(p);
+      totalInflow += t.totalInflow;
+      totalOutflow += t.totalOutflow;
+    });
+
+    const closingBalance = opening + (totalInflow - totalOutflow);
+
+    // Receivables (Pending Collections)
+    const receivables = project.collections
+      .filter((c) => c.status !== 'Paid')
+      .reduce((sum, c) => sum + (c.amount - c.collectedAmount), 0);
+
+    // Payables (Pending Payments)
+    const payables = project.payments
+      .filter((p) => p.status !== 'Paid')
+      .reduce((sum, p) => sum + (p.amount - p.paidAmount), 0);
+
+    // Outlays breakdown
+    let constructionCosts = 0;
+    let materialPurchases = 0;
+    let labourCosts = 0;
+    let contractorPayments = 0;
+    let interestOutflows = 0;
+    let loanEMIs = 0;
+
+    project.periods.forEach((p) => {
+      p.outflows.forEach((o) => {
+        if (o.category === 'Construction Cost') constructionCosts += o.actual;
+        else if (o.category === 'Material Purchase') materialPurchases += o.actual;
+        else if (o.category === 'Labour Cost') labourCosts += o.actual;
+        else if (o.category === 'Contractor Payment') contractorPayments += o.actual;
+        else if (o.category === 'Interest') interestOutflows += o.actual;
+        else if (o.category === 'Loan EMI') loanEMIs += o.actual;
+      });
+    });
+
+    const directCosts = constructionCosts + materialPurchases + labourCosts + contractorPayments;
+    const financingCosts = interestOutflows + loanEMIs;
+
+    // Operating Inflows
+    let operatingInflow = 0;
+    project.periods.forEach((p) => {
+      p.inflows.forEach((i) => {
+        if (i.category !== 'Bank Loan Disbursement' && i.category !== 'Investor Funds') {
+          operatingInflow += i.actual;
+        }
+      });
+    });
+
+    // 1. Liquidity
+    const currentRatio = payables > 0 ? (closingBalance + receivables) / payables : (closingBalance + receivables);
+    const quickRatio = payables > 0 ? (closingBalance + receivables * 0.5) / payables : (closingBalance + receivables * 0.5);
+    const cashRatio = payables > 0 ? closingBalance / payables : closingBalance;
+
+    // 2. Profitability
+    const grossProfit = totalInflow > 0 ? ((totalInflow - directCosts) / totalInflow) * 100 : 0;
+    const netProfit = totalInflow > 0 ? ((totalInflow - totalOutflow) / totalInflow) * 100 : 0;
+    const ebitda = totalInflow > 0 ? ((totalInflow - (totalOutflow - financingCosts)) / totalInflow) * 100 : 0;
+
+    // 3. Efficiency & Flow
+    const assetTurnover = opening > 0 ? totalInflow / opening : 0;
+    const ocfRatio = payables > 0 ? operatingInflow / payables : operatingInflow;
+
+    // 4. Moving Average Forecast
+    const count = project.periods.length || 1;
+    const avgInflow = totalInflow / count;
+    const avgOutflow = totalOutflow / count;
+    const forecast30Balance = closingBalance + (avgInflow - avgOutflow);
+    const forecast90Balance = closingBalance + (avgInflow * 3 - avgOutflow * 3);
+
+    // Observations list
+    const listRecs = [];
+    if (receivables > 0) {
+      listRecs.push(`Prioritize collection follow-ups to reclaim Rs. ${receivables.toFixed(1)} L milestone receivables.`);
+    }
+    if (directCosts > totalInflow * 0.6) {
+      listRecs.push(`Optimize contractor bidding; cumulative construction direct costs are pacing high at Rs. ${directCosts.toFixed(1)} L.`);
+    }
+    if (payables > 0) {
+      listRecs.push(`Negotiate deferred vendor payments for Rs. ${payables.toFixed(1)} L to preserve available cash reserves.`);
+    }
+    if (forecast30Balance < 20) {
+      listRecs.push('Postpone non-essential operations overhead inside the next 30 days to mitigate cash reserve shortages.');
+    }
+    if (listRecs.length === 0) {
+      listRecs.push('Project displays stellar solvency; continue regular scheduled project construction milestones.');
+    }
+
+    return {
+      currentRatio,
+      quickRatio,
+      cashRatio,
+      grossProfit,
+      netProfit,
+      ebitda,
+      assetTurnover,
+      ocfRatio,
+      forecast30Balance,
+      forecast90Balance,
+      listRecs,
+      receivables,
+      payables
+    };
+  }, [project]);
+
   // 1. SheetJS Excel Export
   const handleExportExcel = () => {
     try {
@@ -526,6 +638,113 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
                     })}
                   </tbody>
                 </table>
+              </div>
+
+              {/* SECTION: LIVE FINANCIAL RATIOS FOR AUDIT */}
+              <div className="space-y-3 pt-4 break-inside-avoid">
+                <h5 className="text-[10px] font-bold text-blue-700 uppercase tracking-widest font-mono">Live Financial Ratios Statement</h5>
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-700 uppercase tracking-wider text-[9px] font-mono border-b border-gray-200">
+                        <th className="py-2.5 px-4 font-semibold">Technical Ratio Name</th>
+                        <th className="py-2.5 px-4 font-semibold">Accounting Formula</th>
+                        <th className="py-2.5 px-4 font-semibold">Live Score</th>
+                        <th className="py-2.5 px-4 font-semibold text-right">Solvency Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 text-gray-700">
+                      <tr>
+                        <td className="py-2 px-4 font-semibold">Current Solvency Ratio</td>
+                        <td className="py-2 px-4 font-mono text-[10px]">Current Assets / Liabilities</td>
+                        <td className="py-2 px-4 font-bold text-gray-900">{metrics.currentRatio.toFixed(2)}x</td>
+                        <td className="py-2 px-4 text-right">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700">
+                            {metrics.currentRatio >= 1.5 ? 'Healthy' : 'Squeeze'}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-4 font-semibold">Quick Cash Acid-Test</td>
+                        <td className="py-2 px-4 font-mono text-[10px]">(Cash + 50% Rec) / Payables</td>
+                        <td className="py-2 px-4 font-bold text-gray-900">{metrics.quickRatio.toFixed(2)}x</td>
+                        <td className="py-2 px-4 text-right">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700">
+                            {metrics.quickRatio >= 1.2 ? 'Healthy' : 'Squeeze'}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-4 font-semibold">Gross Profit Yield</td>
+                        <td className="py-2 px-4 font-mono text-[10px]">((Inflow - Direct) / Inflow) * 100</td>
+                        <td className="py-2 px-4 font-bold text-emerald-600">{metrics.grossProfit.toFixed(1)}%</td>
+                        <td className="py-2 px-4 text-right">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700">Operational</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-4 font-semibold">Net Retained Margin</td>
+                        <td className="py-2 px-4 font-mono text-[10px]">((Net Flow) / Inflow) * 100</td>
+                        <td className="py-2 px-4 font-bold text-blue-600">{metrics.netProfit.toFixed(1)}%</td>
+                        <td className="py-2 px-4 text-right">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-blue-50 text-blue-700">Aggregate</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-2 px-4 font-semibold">Operating Cash Flow Ratio</td>
+                        <td className="py-2 px-4 font-mono text-[10px]">Op Inflow / Payables</td>
+                        <td className="py-2 px-4 font-bold text-gray-900">{metrics.ocfRatio.toFixed(2)}x</td>
+                        <td className="py-2 px-4 text-right">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-50 text-emerald-700">
+                            {metrics.ocfRatio >= 1.0 ? 'Covered' : 'Exposed'}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* SECTION: FUTURE FORECAST RUNWAY ANALYSIS */}
+              <div className="space-y-3 pt-4 break-inside-avoid">
+                <h5 className="text-[10px] font-bold text-purple-700 uppercase tracking-widest font-mono">30-Day and 90-Day Forecast Projections</h5>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-slate-50 border border-slate-150 p-3.5 rounded-lg">
+                    <span className="text-[9px] text-gray-400 font-mono font-bold uppercase block">30-Day Predictive Cash Balance</span>
+                    <span className="text-sm font-black text-blue-800 mt-1 block">Rs. {metrics.forecast30Balance.toFixed(2)} Lakhs</span>
+                    <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">
+                      {metrics.forecast30Balance < 20
+                        ? 'CRITICAL WARNING: Balances fall below safety margins inside 30 days.'
+                        : 'Checking balance is on track to stay healthy and above Safety Buffers.'}
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 border border-slate-150 p-3.5 rounded-lg">
+                    <span className="text-[9px] text-gray-400 font-mono font-bold uppercase block">90-Day Predictive Cash Balance</span>
+                    <span className="text-sm font-black text-indigo-800 mt-1 block">Rs. {metrics.forecast90Balance.toFixed(2)} Lakhs</span>
+                    <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">
+                      {metrics.forecast90Balance < 20
+                        ? 'CRITICAL WARNING: Long-term cash reserve deficit predicted within 3 months.'
+                        : 'Long-term operational liquidity remains highly stable.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* SECTION: AUDIT OBSERVATIONS AND GROUNDED ACTIONS */}
+              <div className="space-y-3 pt-4 break-inside-avoid">
+                <h5 className="text-[10px] font-bold text-amber-700 uppercase tracking-widest font-mono">Management Key Observations & Recommendations</h5>
+                <div className="bg-amber-50/40 border border-amber-200 p-4 rounded-xl space-y-2">
+                  <div className="flex items-center gap-1.5 text-[10px] text-amber-800 font-bold font-mono">
+                    <Sparkles className="h-4 w-4 text-amber-600" />
+                    <span>GROUNDED SYSTEM DIRECTIVES</span>
+                  </div>
+                  <ul className="list-decimal list-inside space-y-2 text-xs text-gray-700 font-medium">
+                    {metrics.listRecs.map((rec, idx) => (
+                      <li key={idx} className="leading-relaxed pl-1">{rec}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           )}

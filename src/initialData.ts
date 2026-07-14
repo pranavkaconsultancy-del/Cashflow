@@ -31,6 +31,23 @@ export const DEFAULT_OUTFLOW_CATEGORIES = [
   'Miscellaneous Expenses'
 ];
 
+export const getDepartmentByCategory = (category: string): string => {
+  const constructionCats = ['Construction Cost', 'Material Purchase', 'Labour Cost', 'Contractor Payment'];
+  const financeCats = ['Loan EMI', 'Interest', 'Bank Loan Disbursement', 'Investor Funds'];
+  const marketingCats = ['Marketing Expenses'];
+  const legalCats = ['Government Fees (RERA, Approval, Stamp Duty)'];
+  const designCats = ['Consultant/Architect Fees', 'Land Purchase'];
+  const hrCats = ['Salaries'];
+
+  if (constructionCats.includes(category)) return 'Construction';
+  if (financeCats.includes(category)) return 'Finance';
+  if (marketingCats.includes(category)) return 'Marketing';
+  if (legalCats.includes(category)) return 'Legal';
+  if (designCats.includes(category)) return 'Design';
+  if (hrCats.includes(category)) return 'HR & Admin';
+  return 'Operations';
+};
+
 export const createBlankPeriod = (name: string, prevBankBalance = 15.0, prevCashInHand = 2.0): Period => {
   return {
     id: `per-${generateId()}`,
@@ -40,12 +57,14 @@ export const createBlankPeriod = (name: string, prevBankBalance = 15.0, prevCash
     inflows: DEFAULT_INFLOW_CATEGORIES.map(cat => ({
       category: cat,
       budgeted: 0,
-      actual: 0
+      actual: 0,
+      department: getDepartmentByCategory(cat)
     })),
     outflows: DEFAULT_OUTFLOW_CATEGORIES.map(cat => ({
       category: cat,
       budgeted: 0,
-      actual: 0
+      actual: 0,
+      department: getDepartmentByCategory(cat)
     }))
   };
 };
@@ -423,10 +442,11 @@ export const getSeedProjects = (): Project[] => {
     { category: 'Consultant/Architect Fees', budgeted: 15.0, actual: 15.0 }
   ];
 
-  return [
+  const rawProjects: Project[] = [
     {
       id: 'proj-1',
       name: 'Vanguard Heights Residence',
+      company: 'Vanguard Developers',
       status: 'Ongoing',
       financialYear: 'FY 2026-27',
       periods: p1Periods,
@@ -438,6 +458,7 @@ export const getSeedProjects = (): Project[] => {
     {
       id: 'proj-2',
       name: 'Aurelia Commercial Plaza',
+      company: 'Aurelia Group',
       status: 'Ongoing',
       financialYear: 'FY 2026-27',
       periods: p2Periods,
@@ -449,6 +470,7 @@ export const getSeedProjects = (): Project[] => {
     {
       id: 'proj-3',
       name: 'Zephyr Luxury Villas',
+      company: 'Zephyr Estates',
       status: 'Planning',
       financialYear: 'FY 2026-27',
       periods: p3Periods,
@@ -458,4 +480,33 @@ export const getSeedProjects = (): Project[] => {
       budgetVsActual: p3Budget
     }
   ];
+
+  return rawProjects.map(proj => ({
+    ...proj,
+    periods: proj.periods.map(per => ({
+      ...per,
+      inflows: per.inflows.map(inf => ({
+        ...inf,
+        department: getDepartmentByCategory(inf.category)
+      })),
+      outflows: per.outflows.map(out => ({
+        ...out,
+        department: getDepartmentByCategory(out.category)
+      }))
+    })),
+    payments: proj.payments.map(pay => {
+      let deptCat = 'Construction Cost';
+      if (pay.vendorName.toLowerCase().includes('steel') || pay.vendorName.toLowerCase().includes('cement')) {
+        deptCat = 'Material Purchase';
+      } else if (pay.vendorName.toLowerCase().includes('architect') || pay.vendorName.toLowerCase().includes('consultant')) {
+        deptCat = 'Consultant/Architect Fees';
+      } else if (pay.vendorName.toLowerCase().includes('elevator')) {
+        deptCat = 'Construction Cost';
+      }
+      return {
+        ...pay,
+        department: getDepartmentByCategory(deptCat)
+      };
+    })
+  }));
 };

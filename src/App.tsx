@@ -90,11 +90,12 @@ export default function App() {
   };
 
   // Add New Project Action
-  const handleAddProject = (newProjData: { name: string; status: Project['status']; financialYear: string }) => {
+  const handleAddProject = (newProjData: { name: string; status: Project['status']; financialYear: string; company?: string }) => {
     const newId = `proj-${Math.random().toString(36).substring(2, 9)}`;
     const newProj: Project = {
       id: newId,
       name: newProjData.name,
+      company: newProjData.company || 'Vanguard Developers',
       status: newProjData.status,
       financialYear: newProjData.financialYear,
       periods: [

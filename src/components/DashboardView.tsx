@@ -104,6 +104,32 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
       .sort((a, b) => b.value - a.value);
   }, [project.periods]);
 
+  // 3b. Revenue Distribution Pie Chart Data
+  const revenueDistributionData = useMemo(() => {
+    const categories: Record<string, number> = {};
+    project.periods.forEach((p) => {
+      p.inflows.forEach((i) => {
+        categories[i.category] = (categories[i.category] || 0) + i.actual;
+      });
+    });
+
+    return Object.entries(categories)
+      .map(([name, value]) => ({ name, value: Number(value.toFixed(2)) }))
+      .filter((item) => item.value > 0)
+      .sort((a, b) => b.value - a.value);
+  }, [project.periods]);
+
+  // 3c. Monthly Growth Trend Line Chart Data
+  const monthlyGrowthTrendData = useMemo(() => {
+    return project.periods.map((p) => {
+      const t = calculatePeriodTotals(p);
+      return {
+        name: p.name,
+        'Net Cash Flow': Number(t.netCashFlow.toFixed(2))
+      };
+    });
+  }, [project.periods]);
+
   // 4. Collection Trends (Collected vs Pending over due dates)
   const collectionTrendsData = useMemo(() => {
     let cumulativeCollected = 0;
@@ -345,6 +371,59 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                 <Bar dataKey="Closing" fill="#2563EB" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* New Chart 1: Revenue Distribution (Inflow Categories) */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
+          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Revenue Distribution by Inflow Category</h4>
+          <div className="h-64 w-full flex items-center justify-center">
+            {revenueDistributionData.length === 0 ? (
+              <span className="text-xs text-gray-400">No inflow records to plot yet.</span>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={revenueDistributionData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {revenueDistributionData.map((entry, index) => (
+                      <Cell key={`cell-rev-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                  <Legend wrapperStyle={{ fontSize: 9 }} layout="vertical" align="right" verticalAlign="middle" />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+
+        {/* New Chart 2: Monthly Net Cash Flow Growth Trend */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
+          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Monthly Net Cash Flow Growth Trend</h4>
+          <div className="h-64 w-full">
+            {monthlyGrowthTrendData.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-xs text-gray-400">
+                No monthly logs to plot growth trend yet.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthlyGrowthTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                  <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                  <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                  <Legend wrapperStyle={{ fontSize: 10 }} />
+                  <Line type="monotone" dataKey="Net Cash Flow" stroke="#3B82F6" strokeWidth={3} activeDot={{ r: 6 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
