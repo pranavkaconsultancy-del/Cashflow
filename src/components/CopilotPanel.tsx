@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Project } from '../types';
-import { AlertTriangle, Info, CheckCircle2, TrendingUp } from 'lucide-react';
+import { AlertTriangle, Info, CheckCircle2, TrendingUp, Sparkles } from 'lucide-react';
 
 interface CopilotPanelProps {
   project: Project;
@@ -15,7 +15,11 @@ interface Observation {
 }
 
 export default function CopilotPanel({ project }: CopilotPanelProps) {
-  const observations = useMemo((): Observation[] => {
+  const [aiObservations, setAiObservations] = useState<Observation[] | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isAiPowered, setIsAiPowered] = useState<boolean>(false);
+
+  const localObservations = useMemo((): Observation[] => {
     const list: Observation[] = [];
 
     // Calculate metrics
@@ -117,47 +121,177 @@ export default function CopilotPanel({ project }: CopilotPanelProps) {
     return list.slice(0, 4); // limit to max 4 observations
   }, [project]);
 
+  useEffect(() => {
+    let active = true;
+    const fetchCopilotInsights = async () => {
+      setIsLoading(true);
+      
+      const lastPeriod = project.periods[project.periods.length - 1];
+      const closingBalance = lastPeriod ? (lastPeriod.bankBalance + lastPeriod.cashInHand) : 0;
+      
+      let totalInflow = 0;
+      let totalOutflow = 0;
+      project.periods.forEach((p) => {
+        const pInflow = p.inflows.reduce((sum, i) => sum + (i.actual || 0), 0);
+        const pOutflow = p.outflows.reduce((sum, o) => sum + (o.actual || 0), 0);
+        totalInflow += pInflow;
+        totalOutflow += pOutflow;
+      });
+
+      const count = project.periods.length;
+      const avgInflow = count > 0 ? totalInflow / count : 0;
+      const avgOutflow = count > 0 ? totalOutflow / count : 0;
+
+      const forecast30 = {
+        inflow: Number(avgInflow.toFixed(2)),
+        outflow: Number(avgOutflow.toFixed(2)),
+        balance: Number((closingBalance + (avgInflow - avgOutflow)).toFixed(2))
+      };
+
+      const forecast90 = {
+        inflow: Number((avgInflow * 3).toFixed(2)),
+        outflow: Number((avgOutflow * 3).toFixed(2)),
+        balance: Number((closingBalance + (avgInflow * 3 - avgOutflow * 3)).toFixed(2))
+      };
+
+      const pendingCollections = project.collections
+        .filter(c => c.status !== 'Paid')
+        .reduce((sum, c) => sum + (c.amount - c.collectedAmount), 0);
+      const overdueCollections = project.collections
+        .filter(c => c.status === 'Overdue')
+        .reduce((sum, c) => sum + (c.amount - c.collectedAmount), 0);
+
+      const pendingPayables = project.payments
+        .filter(p => p.status !== 'Paid')
+        .reduce((sum, p) => sum + (p.amount - p.paidAmount), 0);
+      const overduePayables = project.payments
+        .filter(p => p.status === 'Overdue')
+        .reduce((sum, p) => sum + (p.amount - p.paidAmount), 0);
+
+      const context = {
+        projectName: project.name,
+        projectStatus: project.status,
+        financialYear: project.financialYear,
+        openingBalance: project.periods[0] ? (project.periods[0].bankBalance + project.periods[0].cashInHand) : 0,
+        totalInflow,
+        totalOutflow,
+        netCashFlow: totalInflow - totalOutflow,
+        closingBalance,
+        totalReceivables: project.collections.reduce((sum, c) => sum + c.amount, 0),
+        collectedAmount: project.collections.reduce((sum, c) => sum + c.collectedAmount, 0),
+        pendingCollections,
+        overdueCollections,
+        totalPayables: project.payments.reduce((sum, p) => sum + p.amount, 0),
+        paidAmount: project.payments.reduce((sum, p) => sum + p.paidAmount, 0),
+        pendingPayables,
+        overduePayables,
+        budgetVsActual: project.budgetVsActual,
+        forecast30,
+        forecast90,
+        periods: project.periods.map(p => ({
+          name: p.name,
+          bankBalance: p.bankBalance,
+          cashInHand: p.cashInHand,
+          inflows: p.inflows.filter(i => i.actual > 0),
+          outflows: p.outflows.filter(o => o.actual > 0)
+        })),
+        collections: project.collections,
+        payments: project.payments
+      };
+
+      try {
+        const res = await fetch('/api/copilot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ context })
+        });
+        if (!res.ok) throw new Error('API issue');
+        const data = await res.json();
+        if (active) {
+          if (data.observations && Array.isArray(data.observations)) {
+            setAiObservations(data.observations);
+            setIsAiPowered(data.aiPowered);
+          } else {
+            setAiObservations(null);
+            setIsAiPowered(false);
+          }
+        }
+      } catch (err) {
+        console.warn('Fallback local co-pilot insights triggered:', err);
+        if (active) {
+          setAiObservations(null);
+          setIsAiPowered(false);
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchCopilotInsights();
+    return () => {
+      active = false;
+    };
+  }, [project]);
+
+  const activeObservations = aiObservations || localObservations;
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-          <TrendingUp className="h-5 w-5" />
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
+            <TrendingUp className="h-5 w-5" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-gray-900">Real Estate Co-Pilot Insights</h3>
+            <p className="text-[10px] text-gray-500">Autonomous scan of active project ledger and collections.</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-sm font-bold text-gray-900">Real Estate Co-Pilot Insights</h3>
-          <p className="text-[10px] text-gray-500">Autonomous scan of active project ledger and collections.</p>
-        </div>
+        {isAiPowered && (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-violet-50 text-violet-700 border border-violet-100">
+            <Sparkles className="h-2.5 w-2.5 animate-pulse" />
+            AI Grounded
+          </span>
+        )}
       </div>
 
       <div className="space-y-4">
-        {observations.map((obs) => (
-          <div
-            key={obs.id}
-            className={`flex gap-3 p-3.5 rounded-lg border text-xs transition-all ${
-              obs.type === 'danger'
-                ? 'bg-rose-50/50 border-rose-100 text-rose-950'
-                : obs.type === 'warning'
-                ? 'bg-amber-50/50 border-amber-100 text-amber-950'
-                : obs.type === 'success'
-                ? 'bg-emerald-50/50 border-emerald-100 text-emerald-950'
-                : 'bg-blue-50/50 border-blue-100 text-blue-950'
-            }`}
-          >
-            <div className="shrink-0 mt-0.5">
-              {obs.type === 'danger' && <AlertTriangle className="h-4.5 w-4.5 text-rose-600" />}
-              {obs.type === 'warning' && <AlertTriangle className="h-4.5 w-4.5 text-amber-600" />}
-              {obs.type === 'success' && <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600" />}
-              {obs.type === 'info' && <Info className="h-4.5 w-4.5 text-blue-600" />}
-            </div>
-            <div className="space-y-1">
-              <h4 className="font-bold text-gray-900">{obs.title}</h4>
-              <p className="text-gray-600 font-medium">{obs.desc}</p>
-              <p className="text-[10px] text-gray-500 italic border-t border-black/5 pt-1 mt-1">
-                {obs.plainEnglish}
-              </p>
-            </div>
+        {isLoading && !aiObservations ? (
+          <div className="py-8 text-center text-xs text-gray-400">
+            Running co-pilot scan...
           </div>
-        ))}
+        ) : (
+          activeObservations.map((obs) => (
+            <div
+              key={obs.id}
+              className={`flex gap-3 p-3.5 rounded-lg border text-xs transition-all ${
+                obs.type === 'danger'
+                  ? 'bg-rose-50/50 border-rose-100 text-rose-950'
+                  : obs.type === 'warning'
+                  ? 'bg-amber-50/50 border-amber-100 text-amber-950'
+                  : obs.type === 'success'
+                  ? 'bg-emerald-50/50 border-emerald-100 text-emerald-950'
+                  : 'bg-blue-50/50 border-blue-100 text-blue-950'
+              }`}
+            >
+              <div className="shrink-0 mt-0.5">
+                {obs.type === 'danger' && <AlertTriangle className="h-4.5 w-4.5 text-rose-600" />}
+                {obs.type === 'warning' && <AlertTriangle className="h-4.5 w-4.5 text-amber-600" />}
+                {obs.type === 'success' && <CheckCircle2 className="h-4.5 w-4.5 text-emerald-600" />}
+                {obs.type === 'info' && <Info className="h-4.5 w-4.5 text-blue-600" />}
+              </div>
+              <div className="space-y-1">
+                <h4 className="font-bold text-gray-900">{obs.title}</h4>
+                <p className="text-gray-600 font-medium">{obs.desc}</p>
+                <p className="text-[10px] text-gray-500 italic border-t border-black/5 pt-1 mt-1">
+                  {obs.plainEnglish}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

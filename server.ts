@@ -66,6 +66,8 @@ IMPORTANT CRITICAL RULES:
 3. If the answer requires data that has not been entered yet, state clearly "No historical record has been logged for this category yet" instead of guessing.
 4. Explain any real estate financial term with a short, simple, plain-English helper line (e.g. "Net Cash Flow: the absolute cash left over after paying all expenses this month").
 5. Keep your tone professional, encouraging, objective, and clear. Avoid overly long replies.
+6. If the user asks an unclear, vague, or invalid question (e.g. "how's the business doing?", "is everything okay?", "how are we performing?"), do NOT show a generic error or say "I can't help with that" or refuse to answer. Instead, pull the closest relevant facts and numbers from the actual data below (like Net Cash Flow, Closing Balance, safety buffer, budget overruns, or collections status) to synthesize a short, helpful financial summary. Gently clarify in your response what specific metrics you used to answer the question.
+7. Only if a question is completely unrelated to cash flow, finance, or real estate (e.g., "what's the weather?", "tell me a joke", "recommend a movie"), politely and warmly redirect the user back to the cash flow dashboard. Explain how you can help them analyze the active project's cash flow, collections, vendor bills, and safety runways. Remain friendly and supportive, never robotic.
 
 REAL ESTATE PROJECT DATABASE CONTEXT:
 - Active Project: "${context?.projectName || 'None'}"
@@ -86,6 +88,9 @@ REAL ESTATE PROJECT DATABASE CONTEXT:
   * Paid to Date: Rs. ${context?.paidAmount || '0'} Lakhs
   * Pending Vendor Bills: Rs. ${context?.pendingPayables || '0'} Lakhs
   * OVERDUE Vendor Bills: Rs. ${context?.overduePayables || '0'} Lakhs
+- Forecast Runway:
+  * 30-Day Proj Cash Position: Rs. ${context?.forecast30?.balance || '0'} Lakhs (Inflow: Rs. ${context?.forecast30?.inflow || '0'} L, Outflow: Rs. ${context?.forecast30?.outflow || '0'} L)
+  * 90-Day Proj Cash Position: Rs. ${context?.forecast90?.balance || '0'} Lakhs
 - Historical Monthly Periods:
   ${JSON.stringify(context?.periods || [], null, 2)}
 - Customer Collections List:
@@ -259,6 +264,88 @@ Do not return any markdown codeblocks or wrapper around the JSON. Return only th
     } catch (err: any) {
       console.error("Recommendations Route Error:", err);
       res.status(500).json({ error: "Failed to generate recommendations" });
+    }
+  });
+
+  // 1c. API: Real-time Copilot autonomous scan observations
+  app.post("/api/copilot", async (req, res) => {
+    try {
+      const { context } = req.body;
+      if (!context) {
+        return res.status(400).json({ error: "Context is required" });
+      }
+
+      if (!ai) {
+        return res.json({ observations: null, aiPowered: false });
+      }
+
+      const prompt = `You are an elite, highly professional real estate cash flow co-pilot and risk consultant.
+Review this active real estate project's database context below and perform a deep, rigorous solvency and budget scan.
+Generate exactly 3 to 4 critical, highly specific observations/alerts of varying severities ('danger', 'warning', 'success', 'info') based ONLY on these real numbers.
+
+IMPORTANT CRITICAL RULES:
+1. Ground every observation ONLY in these real project numbers. Do NOT invent, assume, or guess any metrics.
+2. Ensure you have at least one high-severity alert ('danger' or 'warning') if there are overdue collections, overdue payables, budget overruns, or if cash reserves drop below safety limits.
+3. Every observation MUST include:
+   - A clear, concise title with numbers (e.g. "Overdue customer payments: Rs. 15.5 Lakhs")
+   - A 1-sentence specific analysis or action item grounded in the data (e.g. "We need to follow up with customer X and Y immediately.")
+   - A short, plain-English explanation at the end to make it accessible (e.g. "Plain-English helper: Customers haven’t paid us on time. We need to secure this cash to keep building.")
+
+CONTEXT:
+Project Name: "${context.projectName || 'Selected Project'}"
+Project Status: "${context.projectStatus || 'Ongoing'}"
+Financial Year: "${context.financialYear || 'FY 2026-27'}"
+Opening Cash: Rs. ${context.openingBalance || '0'} Lakhs
+Closing Cash: Rs. ${context.closingBalance || '0'} Lakhs
+Total Inflow: Rs. ${context.totalInflow || '0'} Lakhs
+Total Outflow: Rs. ${context.totalOutflow || '0'} Lakhs
+Net Cash Flow: Rs. ${context.netCashFlow || '0'} Lakhs
+Forecast 30-Day Cash Reserve: Rs. ${context.forecast30?.balance || '0'} Lakhs (Inflow: Rs. ${context.forecast30?.inflow || '0'} L, Outflow: Rs. ${context.forecast30?.outflow || '0'} L)
+Forecast 90-Day Cash Reserve: Rs. ${context.forecast90?.balance || '0'} Lakhs
+Pending Collections: Rs. ${context.pendingCollections || '0'} Lakhs (Overdue: Rs. ${context.overdueCollections || '0'} Lakhs)
+Pending Vendor Payments: Rs. ${context.pendingPayables || '0'} Lakhs (Overdue: Rs. ${context.overduePayables || '0'} Lakhs)
+Budget vs Actual Outlays: ${JSON.stringify(context.budgetVsActual || [])}
+Historical Periods: ${JSON.stringify(context.periods || [])}
+
+YOUR RESPONSE MUST BE A VALID JSON OBJECT MATCHING THIS EXACT FORMAT:
+{
+  "observations": [
+    {
+      "id": "unique-id-string",
+      "type": "danger" | "warning" | "success" | "info",
+      "title": "Concise headline with actual numbers",
+      "desc": "Ground-truth 1-sentence description of the issue or positive status.",
+      "plainEnglish": "Plain-English helper: What this means to your daily building progress simply."
+    }
+  ]
+}
+Do not return any markdown codeblocks or wrapper around the JSON. Return only the raw JSON.`;
+
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-3.5-flash",
+          contents: prompt,
+          config: {
+            temperature: 0.1,
+            responseMimeType: "application/json"
+          }
+        });
+
+        const parsed = JSON.parse(response.text.trim());
+        if (parsed.observations && Array.isArray(parsed.observations)) {
+          return res.json({
+            observations: parsed.observations,
+            aiPowered: true
+          });
+        }
+      } catch (geminiErr) {
+        console.error("Gemini copilot error, falling back:", geminiErr);
+      }
+
+      res.json({ observations: null, aiPowered: false });
+    } catch (err: any) {
+      console.error("Copilot Route Error:", err);
+      res.status(500).json({ error: "Failed to generate copilot insights" });
     }
   });
 

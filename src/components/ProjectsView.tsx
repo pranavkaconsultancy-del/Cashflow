@@ -179,10 +179,7 @@ export default function ProjectsView({ projects, activeProjectId, onSelectProjec
                 </div>
               </div>
 
-              <div className="mt-4 pt-2 flex items-center justify-between text-[11px] font-bold text-[#2563EB]">
-                <span>Manage Cash Flow</span>
-                <span>&rarr;</span>
-              </div>
+
             </div>
           );
         })}

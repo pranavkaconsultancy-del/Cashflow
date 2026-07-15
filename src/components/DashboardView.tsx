@@ -195,7 +195,6 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
           <div>
             <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Cash Inflow</span>
             <span className="block text-lg font-black text-emerald-600 mt-1">Rs. {summary.totalInflow.toFixed(2)} L</span>
-            <span className="block text-[9px] text-gray-500 italic mt-0.5 leading-none">Plain-English: Total incoming sales money.</span>
           </div>
           <div className="absolute bottom-3 right-3 text-emerald-100">
             <Coins className="h-10 w-10 stroke-1" />

@@ -59,6 +59,31 @@ Ask me anything about this project's available bank balance, pending vendor bill
     const lastPeriod = project.periods[project.periods.length - 1];
     const closingBalance = lastPeriod ? (lastPeriod.bankBalance + lastPeriod.cashInHand) : 0;
     
+    let totalInflowVal = 0;
+    let totalOutflowVal = 0;
+    project.periods.forEach((p) => {
+      const pInflow = p.inflows.reduce((sum, i) => sum + (i.actual || 0), 0);
+      const pOutflow = p.outflows.reduce((sum, o) => sum + (o.actual || 0), 0);
+      totalInflowVal += pInflow;
+      totalOutflowVal += pOutflow;
+    });
+
+    const count = project.periods.length;
+    const avgInflow = count > 0 ? totalInflowVal / count : 0;
+    const avgOutflow = count > 0 ? totalOutflowVal / count : 0;
+
+    const forecast30 = {
+      inflow: Number(avgInflow.toFixed(2)),
+      outflow: Number(avgOutflow.toFixed(2)),
+      balance: Number((closingBalance + (avgInflow - avgOutflow)).toFixed(2))
+    };
+
+    const forecast90 = {
+      inflow: Number((avgInflow * 3).toFixed(2)),
+      outflow: Number((avgOutflow * 3).toFixed(2)),
+      balance: Number((closingBalance + (avgInflow * 3 - avgOutflow * 3)).toFixed(2))
+    };
+
     const pendingCollections = project.collections
       .filter(c => c.status !== 'Paid')
       .reduce((sum, c) => sum + (c.amount - c.collectedAmount), 0);
@@ -77,7 +102,11 @@ Ask me anything about this project's available bank balance, pending vendor bill
       projectName: project.name,
       projectStatus: project.status,
       financialYear: project.financialYear,
-      openingBalance: lastPeriod ? (lastPeriod.bankBalance + lastPeriod.cashInHand) : 0,
+      openingBalance: project.periods[0] ? (project.periods[0].bankBalance + project.periods[0].cashInHand) : 0,
+      totalInflow: totalInflowVal,
+      totalOutflow: totalOutflowVal,
+      netCashFlow: totalInflowVal - totalOutflowVal,
+      closingBalance,
       totalReceivables: project.collections.reduce((sum, c) => sum + c.amount, 0),
       collectedAmount: project.collections.reduce((sum, c) => sum + c.collectedAmount, 0),
       pendingCollections,
@@ -87,13 +116,17 @@ Ask me anything about this project's available bank balance, pending vendor bill
       pendingPayables,
       overduePayables,
       budgetVsActual: project.budgetVsActual,
+      forecast30,
+      forecast90,
       periods: project.periods.map(p => ({
         name: p.name,
         bankBalance: p.bankBalance,
         cashInHand: p.cashInHand,
         inflows: p.inflows.filter(i => i.actual > 0),
         outflows: p.outflows.filter(o => o.actual > 0)
-      }))
+      })),
+      collections: project.collections,
+      payments: project.payments
     };
 
     try {
