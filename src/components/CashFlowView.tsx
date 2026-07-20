@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Project, Period, PeriodInflow, PeriodOutflow } from '../types';
-import { calculatePeriodTotals } from '../utils/calculations';
+import { calculatePeriodTotals, formatCurrency } from '../utils/calculations';
 import { Plus, Trash2, HelpCircle, Save, RotateCcw, Calendar } from 'lucide-react';
 
 interface CashFlowViewProps {
@@ -38,13 +38,13 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
     // Use values of the last period if any
     const lastPeriod = project.periods[project.periods.length - 1];
     const prevTotals = lastPeriod ? calculatePeriodTotals(lastPeriod) : null;
-    const prevBank = prevTotals ? prevTotals.closingBalance : 15.0;
+    const prevBank = prevTotals ? prevTotals.closingBalance : 1500000;
 
     const newPeriod: Period = {
       id: `per-${Math.random().toString(36).substring(2, 9)}`,
       name: newPeriodName.trim(),
       bankBalance: prevBank,
-      cashInHand: lastPeriod ? lastPeriod.cashInHand : 2.0,
+      cashInHand: lastPeriod ? lastPeriod.cashInHand : 200000,
       inflows: (lastPeriod ? lastPeriod.inflows : []).map(i => ({ ...i, budgeted: 0, actual: 0 })),
       outflows: (lastPeriod ? lastPeriod.outflows : []).map(o => ({ ...o, budgeted: 0, actual: 0 }))
     };
@@ -155,7 +155,7 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
             onChange={(e) => setNewPeriodName(e.target.value)}
             className="flex-1 bg-gray-50 border border-gray-250 rounded-lg p-2 text-xs"
           />
-          <button type="submit" className="bg-[#2563EB] text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer">
+          <button type="submit" className="bg-blue-600 text-white text-xs font-semibold px-3 py-2 rounded-lg cursor-pointer">
             Add
           </button>
         </form>
@@ -168,7 +168,7 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
       {/* Selector and Add period bar */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-[#2563EB]" />
+          <Calendar className="h-5 w-5 text-blue-600" />
           <div>
             <label className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-semibold">
               Selected Period / Month
@@ -198,7 +198,7 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
           />
           <button
             type="submit"
-            className="bg-[#2563EB] hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-xs cursor-pointer flex items-center gap-1"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-xs cursor-pointer flex items-center gap-1"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Add Month</span>
@@ -218,7 +218,7 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
-              Bank Balance (Rs. Lakhs)
+              Bank Balance (₹)
             </label>
             <input
               type="number"
@@ -231,7 +231,7 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
 
           <div>
             <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">
-              Cash In Hand (Rs. Lakhs)
+              Cash In Hand (₹)
             </label>
             <input
               type="number"
@@ -245,7 +245,7 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
           <div className="bg-blue-50/50 border border-blue-100 p-3 rounded-lg flex flex-col justify-center">
             <span className="text-[10px] text-blue-800 uppercase tracking-wider font-mono font-bold">Auto-Calculated Opening Balance</span>
             <span className="text-lg font-extrabold text-blue-900 mt-1">
-              Rs. {totals ? totals.openingBalance.toFixed(2) : '0.00'} Lakhs
+              {totals ? formatCurrency(totals.openingBalance) : '₹0'}
             </span>
           </div>
         </div>
@@ -271,7 +271,7 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
             />
             <button
               onClick={handleAddInflowCategory}
-              className="bg-blue-50 hover:bg-blue-100 text-[#2563EB] px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer border border-blue-100"
+              className="bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer border border-blue-100"
             >
               Add Category
             </button>
@@ -283,8 +283,8 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
             <thead>
               <tr className="bg-gray-50/75 text-gray-500 uppercase tracking-wider text-[10px] font-mono border-b border-gray-200">
                 <th className="py-3 px-5 font-semibold">Category Name</th>
-                <th className="py-3 px-5 font-semibold">Planned Budget (Rs. Lakhs)</th>
-                <th className="py-3 px-5 font-semibold">Actual Collected (Rs. Lakhs)</th>
+                <th className="py-3 px-5 font-semibold">Planned Budget (₹)</th>
+                <th className="py-3 px-5 font-semibold">Actual Collected (₹)</th>
                 <th className="py-3 px-5 font-semibold text-right">Action</th>
               </tr>
             </thead>
@@ -345,7 +345,7 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
             />
             <button
               onClick={handleAddOutflowCategory}
-              className="bg-blue-50 hover:bg-blue-100 text-[#2563EB] px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer border border-blue-100"
+              className="bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1 rounded-lg text-xs font-semibold cursor-pointer border border-blue-100"
             >
               Add Category
             </button>
@@ -357,8 +357,8 @@ export default function CashFlowView({ project, onUpdateProject }: CashFlowViewP
             <thead>
               <tr className="bg-gray-50/75 text-gray-500 uppercase tracking-wider text-[10px] font-mono border-b border-gray-200">
                 <th className="py-3 px-5 font-semibold">Category Name</th>
-                <th className="py-3 px-5 font-semibold">Planned Budget (Rs. Lakhs)</th>
-                <th className="py-3 px-5 font-semibold">Actual Spent (Rs. Lakhs)</th>
+                <th className="py-3 px-5 font-semibold">Planned Budget (₹)</th>
+                <th className="py-3 px-5 font-semibold">Actual Spent (₹)</th>
                 <th className="py-3 px-5 font-semibold text-right">Action</th>
               </tr>
             </thead>

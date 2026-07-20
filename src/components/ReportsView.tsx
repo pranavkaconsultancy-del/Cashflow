@@ -1,10 +1,11 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Project } from '../types';
-import { calculatePeriodTotals } from '../utils/calculations';
+import { calculatePeriodTotals, formatCurrency } from '../utils/calculations';
 import { FileText, Download, Printer, Loader2, Landmark, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
+import Logo from './Logo';
 
 // Helper to convert OKLCH and OKLab to RGB format to prevent html2canvas failures on Tailwind v4
 function cleanOklchString(cssOklch: string): string {
@@ -91,7 +92,7 @@ interface ReportsViewProps {
 export default function ReportsView({ project, projects }: ReportsViewProps) {
   const [reportType, setReportType] = useState<'statement' | 'monthly' | 'project-wise'>('statement');
   const [selectedPeriodId, setSelectedPeriodId] = useState<string>(project.periods[0]?.id || 'all');
-  const [companyName, setCompanyName] = useState('Vanguard Real Estate Developers');
+  const [companyName, setCompanyName] = useState('SyncAI Consultancy Pvt. Ltd.');
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const printAreaRef = useRef<HTMLDivElement>(null);
@@ -202,15 +203,15 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
     // Observations list
     const listRecs = [];
     if (receivables > 0) {
-      listRecs.push(`Prioritize collection follow-ups to reclaim Rs. ${receivables.toFixed(1)} L milestone receivables.`);
+      listRecs.push(`Prioritize collection follow-ups to reclaim ${formatCurrency(receivables)} milestone receivables.`);
     }
     if (directCosts > totalInflow * 0.6) {
-      listRecs.push(`Optimize contractor bidding; cumulative construction direct costs are pacing high at Rs. ${directCosts.toFixed(1)} L.`);
+      listRecs.push(`Optimize contractor bidding; cumulative construction direct costs are pacing high at ${formatCurrency(directCosts)}.`);
     }
     if (payables > 0) {
-      listRecs.push(`Negotiate deferred vendor payments for Rs. ${payables.toFixed(1)} L to preserve available cash reserves.`);
+      listRecs.push(`Negotiate deferred vendor payments for ${formatCurrency(payables)} to preserve available cash reserves.`);
     }
-    if (forecast30Balance < 20) {
+    if (forecast30Balance < 2000000) {
       listRecs.push('Postpone non-essential operations overhead inside the next 30 days to mitigate cash reserve shortages.');
     }
     if (listRecs.length === 0) {
@@ -244,11 +245,11 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
         { Metric: 'Project Name', Value: project.name },
         { Metric: 'Financial Year', Value: project.financialYear },
         { Metric: 'Status', Value: project.status },
-        { Metric: 'Opening Balance (Base)', Value: `Rs. ${statementTotals.opening.toFixed(2)} Lakhs` },
-        { Metric: 'Aggregate Inflows', Value: `Rs. ${statementTotals.totalInflow.toFixed(2)} Lakhs` },
-        { Metric: 'Aggregate Outflows', Value: `Rs. ${statementTotals.totalOutflow.toFixed(2)} Lakhs` },
-        { Metric: 'Net Cumulative Cash Flow', Value: `Rs. ${statementTotals.netCashFlow.toFixed(2)} Lakhs` },
-        { Metric: 'Project Closing Position', Value: `Rs. ${statementTotals.closing.toFixed(2)} Lakhs` }
+        { Metric: 'Opening Balance (Base)', Value: formatCurrency(statementTotals.opening) },
+        { Metric: 'Aggregate Inflows', Value: formatCurrency(statementTotals.totalInflow) },
+        { Metric: 'Aggregate Outflows', Value: formatCurrency(statementTotals.totalOutflow) },
+        { Metric: 'Net Cumulative Cash Flow', Value: formatCurrency(statementTotals.netCashFlow) },
+        { Metric: 'Project Closing Position', Value: formatCurrency(statementTotals.closing) }
       ];
       const summarySheet = XLSX.utils.json_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(workbook, summarySheet, 'Project Summary');
@@ -493,7 +494,7 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
             <button
               onClick={handleExportPDF}
               disabled={isGenerating}
-              className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer disabled:opacity-40 shadow-xs"
+              className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer disabled:opacity-40 shadow-xs"
             >
               {isGenerating ? (
                 <>
@@ -568,18 +569,22 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
           
           {/* Header Banner */}
           <div className="border-b-2 border-blue-600 pb-5 flex justify-between items-start">
-            <div>
-              <span className="text-xs font-bold text-blue-600 uppercase tracking-widest font-mono">{companyName}</span>
-              <h2 className="text-2xl font-black text-gray-900 font-display mt-1">Real Estate Project Financial Report</h2>
-              <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-medium mt-1">
-                <Landmark className="h-4 w-4" />
-                Active Scope: <strong className="text-gray-900">{project.name}</strong>
-              </span>
+            <div className="space-y-3">
+              <Logo className="w-[180px] h-[44px]" size="sm" />
+              <div>
+                <h2 className="text-2xl font-black text-gray-900 font-display">Real Estate Project Financial Report</h2>
+                <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-medium mt-1">
+                  <Landmark className="h-4 w-4" />
+                  Active Scope: <strong className="text-gray-900">{project.name}</strong>
+                </span>
+              </div>
             </div>
             <div className="text-right">
+              <span className="block text-[10px] font-mono uppercase text-gray-400 tracking-wider">Company / Group</span>
+              <span className="text-xs font-bold text-blue-600 block mb-1">{companyName}</span>
               <span className="block text-[10px] font-mono uppercase text-gray-400 tracking-wider">Report Date</span>
               <span className="text-xs font-bold text-gray-900">{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              <span className="block text-[10px] text-gray-400 font-semibold uppercase mt-1 font-mono">Currency: Rs. Lakhs</span>
+              <span className="block text-[10px] text-gray-400 font-semibold uppercase mt-1 font-mono">Currency: ₹ (INR)</span>
             </div>
           </div>
 
@@ -591,19 +596,19 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-150 text-center">
                   <span className="text-[9px] text-gray-400 uppercase tracking-wider font-mono font-bold">Base Opening Balance</span>
-                  <span className="block text-base font-black text-gray-900 mt-1">Rs. {statementTotals.opening.toFixed(2)} L</span>
+                  <span className="block text-base font-black text-gray-900 mt-1">{formatCurrency(statementTotals.opening)}</span>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-150 text-center">
                   <span className="text-[9px] text-gray-400 uppercase tracking-wider font-mono font-bold">Aggregate Inflows</span>
-                  <span className="block text-base font-black text-emerald-600 mt-1">Rs. {statementTotals.totalInflow.toFixed(2)} L</span>
+                  <span className="block text-base font-black text-emerald-600 mt-1">{formatCurrency(statementTotals.totalInflow)}</span>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-150 text-center">
                   <span className="text-[9px] text-gray-400 uppercase tracking-wider font-mono font-bold">Aggregate Outflows</span>
-                  <span className="block text-base font-black text-rose-600 mt-1">Rs. {statementTotals.totalOutflow.toFixed(2)} L</span>
+                  <span className="block text-base font-black text-rose-600 mt-1">{formatCurrency(statementTotals.totalOutflow)}</span>
                 </div>
                 <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-center">
                   <span className="text-[9px] text-blue-800 uppercase tracking-wider font-mono font-bold">Project Closing Balance</span>
-                  <span className="block text-base font-black text-blue-900 mt-1">Rs. {statementTotals.closing.toFixed(2)} L</span>
+                  <span className="block text-base font-black text-blue-900 mt-1">{formatCurrency(statementTotals.closing)}</span>
                 </div>
               </div>
 
@@ -626,13 +631,13 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
                       return (
                         <tr key={p.id} className="hover:bg-gray-50/30">
                           <td className="py-3 px-4 font-bold text-gray-900">{p.name}</td>
-                          <td className="py-3 px-4">Rs. {t.openingBalance.toFixed(2)} L</td>
-                          <td className="py-3 px-4 text-emerald-600 font-semibold">+ Rs. {t.totalInflow.toFixed(2)} L</td>
-                          <td className="py-3 px-4 text-rose-600 font-semibold">- Rs. {t.totalOutflow.toFixed(2)} L</td>
+                          <td className="py-3 px-4">{formatCurrency(t.openingBalance)}</td>
+                          <td className="py-3 px-4 text-emerald-600 font-semibold">+{formatCurrency(t.totalInflow)}</td>
+                          <td className="py-3 px-4 text-rose-600 font-semibold">-{formatCurrency(t.totalOutflow)}</td>
                           <td className={`py-3 px-4 font-bold ${t.netCashFlow >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-                            Rs. {t.netCashFlow.toFixed(2)} L
+                            {formatCurrency(t.netCashFlow)}
                           </td>
-                          <td className="py-3 px-4 font-bold text-gray-800 text-right">Rs. {t.closingBalance.toFixed(2)} L</td>
+                          <td className="py-3 px-4 font-bold text-gray-800 text-right">{formatCurrency(t.closingBalance)}</td>
                         </tr>
                       );
                     })}
@@ -711,9 +716,9 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-slate-50 border border-slate-150 p-3.5 rounded-lg">
                     <span className="text-[9px] text-gray-400 font-mono font-bold uppercase block">30-Day Predictive Cash Balance</span>
-                    <span className="text-sm font-black text-blue-800 mt-1 block">Rs. {metrics.forecast30Balance.toFixed(2)} Lakhs</span>
+                    <span className="text-sm font-black text-blue-800 mt-1 block">{formatCurrency(metrics.forecast30Balance)}</span>
                     <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">
-                      {metrics.forecast30Balance < 20
+                      {metrics.forecast30Balance < 2000000
                         ? 'CRITICAL WARNING: Balances fall below safety margins inside 30 days.'
                         : 'Checking balance is on track to stay healthy and above Safety Buffers.'}
                     </p>
@@ -721,9 +726,9 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
 
                   <div className="bg-slate-50 border border-slate-150 p-3.5 rounded-lg">
                     <span className="text-[9px] text-gray-400 font-mono font-bold uppercase block">90-Day Predictive Cash Balance</span>
-                    <span className="text-sm font-black text-indigo-800 mt-1 block">Rs. {metrics.forecast90Balance.toFixed(2)} Lakhs</span>
+                    <span className="text-sm font-black text-indigo-800 mt-1 block">{formatCurrency(metrics.forecast90Balance)}</span>
                     <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">
-                      {metrics.forecast90Balance < 20
+                      {metrics.forecast90Balance < 2000000
                         ? 'CRITICAL WARNING: Long-term cash reserve deficit predicted within 3 months.'
                         : 'Long-term operational liquidity remains highly stable.'}
                     </p>
@@ -773,8 +778,8 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
                       {activePeriod.inflows.map((item, idx) => (
                         <tr key={idx}>
                           <td className="py-2.5 px-4 font-semibold">{item.category}</td>
-                          <td className="py-2.5 px-4">Rs. {item.budgeted.toFixed(2)} L</td>
-                          <td className="py-2.5 px-4 font-bold text-emerald-600 text-right">Rs. {item.actual.toFixed(2)} L</td>
+                          <td className="py-2.5 px-4">{formatCurrency(item.budgeted)}</td>
+                          <td className="py-2.5 px-4 font-bold text-emerald-600 text-right">{formatCurrency(item.actual)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -798,8 +803,8 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
                       {activePeriod.outflows.map((item, idx) => (
                         <tr key={idx}>
                           <td className="py-2.5 px-4 font-semibold">{item.category}</td>
-                          <td className="py-2.5 px-4">Rs. {item.budgeted.toFixed(2)} L</td>
-                          <td className="py-2.5 px-4 font-bold text-rose-600 text-right">Rs. {item.actual.toFixed(2)} L</td>
+                          <td className="py-2.5 px-4">{formatCurrency(item.budgeted)}</td>
+                          <td className="py-2.5 px-4 font-bold text-rose-600 text-right">{formatCurrency(item.actual)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -838,9 +843,9 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
                           <td className="py-3 px-4 font-bold text-gray-900">{proj.name}</td>
                           <td className="py-3 px-4 font-semibold">{proj.status}</td>
                           <td className="py-3 px-4 font-mono font-bold text-gray-400">{proj.periods.length} months</td>
-                          <td className="py-3 px-4">Rs. {baseOpen.toFixed(2)} L</td>
-                          <td className="py-3 px-4 font-medium text-rose-600">Rs. {totalOut.toFixed(2)} L</td>
-                          <td className="py-3 px-4 font-bold text-blue-800 text-right">Rs. {closing.toFixed(2)} L</td>
+                          <td className="py-3 px-4">{formatCurrency(baseOpen)}</td>
+                          <td className="py-3 px-4 font-medium text-rose-600">{formatCurrency(totalOut)}</td>
+                          <td className="py-3 px-4 font-bold text-blue-800 text-right">{formatCurrency(closing)}</td>
                         </tr>
                       );
                     })}
@@ -853,7 +858,7 @@ export default function ReportsView({ project, projects }: ReportsViewProps) {
           {/* Verification disclaimer */}
           <div className="border-t border-gray-150 pt-5 text-[10px] text-gray-400 text-center leading-relaxed">
             <p>CONFIDENTIAL REPORT FOR INTERNAL MANAGEMENT USE ONLY. PREPARED AUTONOMOUSLY BY THE VANGUARD REAL ESTATE PORTFOLIO ENGINE.</p>
-            <p className="mt-1">Values computed are in Indian Rupees (Lakhs) where 1 Lakh is equivalent to ₹1,00,000.</p>
+            <p className="mt-1 font-semibold text-gray-500">Values computed are in standard Indian Rupees (INR) with 3-digit comma grouping.</p>
           </div>
 
         </div>

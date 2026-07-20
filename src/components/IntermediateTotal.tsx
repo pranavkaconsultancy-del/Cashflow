@@ -1,4 +1,5 @@
 import { ArrowRight, ArrowUpRight, ArrowDownRight, Wallet, CheckSquare } from 'lucide-react';
+import { formatCurrency } from '../utils/calculations';
 
 interface IntermediateTotalProps {
   label: string;
@@ -79,12 +80,7 @@ export default function IntermediateTotal({
         <div className="text-right">
           <span className="block text-[10px] uppercase tracking-wider opacity-60 font-medium">Budgeted</span>
           <span className="font-mono text-sm md:text-base font-semibold">
-            ₹{' '}
-            {budgeted.toLocaleString('en-IN', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}{' '}
-            L
+            {formatCurrency(budgeted)}
           </span>
         </div>
 
@@ -92,12 +88,7 @@ export default function IntermediateTotal({
         <div className="text-right">
           <span className="block text-[10px] uppercase tracking-wider opacity-60 font-medium">Actual</span>
           <span className="font-mono text-base md:text-lg font-bold">
-            ₹{' '}
-            {actual.toLocaleString('en-IN', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}{' '}
-            L
+            {formatCurrency(actual)}
           </span>
         </div>
 
@@ -106,11 +97,7 @@ export default function IntermediateTotal({
           <span className="block text-[10px] uppercase tracking-wider opacity-60 font-medium">Variance</span>
           <span className={`font-mono text-sm md:text-base ${getVarianceColor()}`}>
             {variance > 0 ? '+' : ''}
-            {variance.toLocaleString('en-IN', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}{' '}
-            L
+            {formatCurrency(variance)}
           </span>
         </div>
       </div>

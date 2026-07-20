@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { Project } from '../types';
-import { calculatePeriodTotals } from '../utils/calculations';
+import { calculatePeriodTotals, formatCurrency } from '../utils/calculations';
 import { Bell, AlertTriangle, ShieldCheck, TrendingDown, ArrowDownRight, Coins, AlertCircle } from 'lucide-react';
 
 interface AlertsPanelProps {
@@ -17,7 +17,7 @@ interface AlertItem {
   plainEnglish: string;
 }
 
-export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProps) {
+export default function AlertsPanel({ project, threshold = 2000000 }: AlertsPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +47,7 @@ export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProp
         type: 'danger',
         category: 'Low Cash Balance',
         title: 'CRITICAL: Checking account overdraft',
-        message: `Your closing cash position has dropped to Rs. ${latestTotals.closingBalance.toFixed(2)} Lakhs.`,
+        message: `Your closing cash position has dropped to ${formatCurrency(latestTotals.closingBalance)}.`,
         plainEnglish: 'Plain-English helper: We have run completely out of cash in our bank accounts. Payments will bounce.'
       });
     } else if (latestTotals.closingBalance < threshold) {
@@ -56,7 +56,7 @@ export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProp
         type: 'warning',
         category: 'Low Cash Balance',
         title: 'Low Cash Safety Reserves',
-        message: `Available cash Rs. ${latestTotals.closingBalance.toFixed(2)} L is below the configured Rs. ${threshold}.00 L buffer.`,
+        message: `Available cash ${formatCurrency(latestTotals.closingBalance)} is below the configured ${formatCurrency(threshold)} buffer.`,
         plainEnglish: 'Plain-English helper: Our bank accounts are thin. We should pause non-essential spending to build a safety net.'
       });
     }
@@ -68,7 +68,7 @@ export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProp
         type: 'warning',
         category: 'Negative Cash Flow',
         title: `Negative Net Cash Flow in ${latestPeriod.name}`,
-        message: `Outflows exceeded inflows by Rs. ${Math.abs(latestTotals.netCashFlow).toFixed(2)} Lakhs this month.`,
+        message: `Outflows exceeded inflows by ${formatCurrency(Math.abs(latestTotals.netCashFlow))} this month.`,
         plainEnglish: `Plain-English helper: We spent more than we collected in ${latestPeriod.name}. This is unsustainable long-term.`
       });
     }
@@ -83,7 +83,7 @@ export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProp
           type: 'warning',
           category: 'High Expenses',
           title: `Overbudget: ${o.category}`,
-          message: `Spent Rs. ${o.actual.toFixed(2)} L vs Rs. ${o.budgeted.toFixed(2)} L planned (+${pct.toFixed(1)}%).`,
+          message: `Spent ${formatCurrency(o.actual)} vs ${formatCurrency(o.budgeted)} planned (+${pct.toFixed(1)}%).`,
           plainEnglish: `Plain-English helper: Spending on "${o.category}" went way over our planned budget this month.`
         });
       }
@@ -100,7 +100,7 @@ export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProp
           type: 'warning',
           category: 'Revenue Drop',
           title: `Revenue drop of ${dropPct.toFixed(1)}% MoM`,
-          message: `Inflows dropped from Rs. ${prevTotals.totalInflow.toFixed(2)} L to Rs. ${latestTotals.totalInflow.toFixed(2)} L.`,
+          message: `Inflows dropped from ${formatCurrency(prevTotals.totalInflow)} to ${formatCurrency(latestTotals.totalInflow)}.`,
           plainEnglish: 'Plain-English helper: Sales and customer collections slowed down compared to last month.'
         });
       }
@@ -115,7 +115,7 @@ export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProp
           type: 'info',
           category: 'Budget Exceeded',
           title: `Cumulative Overrun: ${item.category}`,
-          message: `Exceeded project-to-date budget by Rs. ${diff.toFixed(2)} Lakhs.`,
+          message: `Exceeded project-to-date budget by ${formatCurrency(diff)}.`,
           plainEnglish: `Plain-English helper: Over the entire life of this project, we have spent more on "${item.category}" than allocated.`
         });
       }
@@ -142,7 +142,7 @@ export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProp
         type: 'danger',
         category: 'Cash Reserve Warning',
         title: 'High Risk: 30-Day Cash Deficit',
-        message: `Moving average models predict reserves falling to Rs. ${forecast30Balance.toFixed(2)} L in 30 days.`,
+        message: `Moving average models predict reserves falling to ${formatCurrency(forecast30Balance)} in 30 days.`,
         plainEnglish: 'Plain-English helper: If current spending and collecting habits continue, we will face a major cash shortage next month.'
       });
     } else if (forecast90Balance < threshold) {
@@ -151,7 +151,7 @@ export default function AlertsPanel({ project, threshold = 20 }: AlertsPanelProp
         type: 'warning',
         category: 'Cash Reserve Warning',
         title: 'Risk: 90-Day Cash Crunch',
-        message: `Long-term model predicts reserves falling to Rs. ${forecast90Balance.toFixed(2)} L in 90 days.`,
+        message: `Long-term model predicts reserves falling to ${formatCurrency(forecast90Balance)} in 90 days.`,
         plainEnglish: 'Plain-English helper: Three months out, we are on track to dip below our minimum cash threshold unless we collect faster.'
       });
     }

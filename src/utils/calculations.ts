@@ -45,3 +45,16 @@ export const calculatePeriodBudgetTotals = (period: Period) => {
     closingBalance
   };
 };
+
+export const formatCurrency = (val: number | string): string => {
+  const num = typeof val === 'string' ? parseFloat(val) : val;
+  if (isNaN(num) || num === null || num === undefined) return '₹0';
+  
+  const hasFraction = num % 1 !== 0;
+  const formatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: hasFraction ? 2 : 0,
+    maximumFractionDigits: 2,
+  });
+  
+  return `₹${formatter.format(num)}`;
+};

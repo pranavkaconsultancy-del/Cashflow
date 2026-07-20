@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Project } from '../types';
 import { Building2, Plus, Clock, CheckCircle2, AlertCircle, Calendar } from 'lucide-react';
+import { formatCurrency } from '../utils/calculations';
 
 interface ProjectsViewProps {
   projects: Project[];
@@ -35,7 +36,7 @@ export default function ProjectsView({ projects, activeProjectId, onSelectProjec
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>Add Project</span>
@@ -103,7 +104,7 @@ export default function ProjectsView({ projects, activeProjectId, onSelectProjec
               </button>
               <button
                 type="submit"
-                className="bg-[#2563EB] hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
               >
                 Create Project
               </button>
@@ -125,7 +126,7 @@ export default function ProjectsView({ projects, activeProjectId, onSelectProjec
               onClick={() => onSelectProject(proj.id)}
               className={`rounded-xl border p-5 shadow-xs transition-all cursor-pointer relative flex flex-col justify-between ${
                 isActive
-                  ? 'bg-white border-[#2563EB] ring-1 ring-[#2563EB]/40'
+                  ? 'bg-white border-blue-600 ring-1 ring-blue-600/40'
                   : 'bg-white border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -170,11 +171,11 @@ export default function ProjectsView({ projects, activeProjectId, onSelectProjec
                 <div className="border-t border-gray-100 pt-3 mt-3 grid grid-cols-2 gap-2 text-center">
                   <div className="p-1.5 bg-gray-50 rounded-lg">
                     <span className="block text-[9px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Inflow (Total)</span>
-                    <span className="text-xs font-bold text-gray-900">Rs. {totalIn.toFixed(1)} L</span>
+                    <span className="text-xs font-bold text-gray-900">{formatCurrency(totalIn)}</span>
                   </div>
                   <div className="p-1.5 bg-gray-50 rounded-lg">
                     <span className="block text-[9px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Outflow (Total)</span>
-                    <span className="text-xs font-bold text-gray-900 font-medium">Rs. {totalOut.toFixed(1)} L</span>
+                    <span className="text-xs font-bold text-gray-900 font-medium">{formatCurrency(totalOut)}</span>
                   </div>
                 </div>
               </div>

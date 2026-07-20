@@ -125,8 +125,9 @@ Ask me anything about this project's available bank balance, pending vendor bill
         inflows: p.inflows.filter(i => i.actual > 0),
         outflows: p.outflows.filter(o => o.actual > 0)
       })),
-      collections: project.collections,
-      payments: project.payments
+      collections: project.collections || [],
+      payments: project.payments || [],
+      transactions: project.transactions || []
     };
 
     try {
@@ -142,7 +143,8 @@ Ask me anything about this project's available bank balance, pending vendor bill
       });
 
       if (!response.ok) {
-        throw new Error('Failed to get response from server chatbot');
+        const errJson = await response.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Failed to get response from server chatbot');
       }
 
       const data = await response.json();
@@ -153,7 +155,7 @@ Ask me anything about this project's available bank balance, pending vendor bill
         ...prev,
         {
           sender: 'ai',
-          text: `Error: Unable to connect to assistant. Make sure your local Express backend server is running on port 3000.`
+          text: `Error: Unable to connect to assistant. ${err.message || 'Make sure your local Express backend server is running on port 3000.'}`
         }
       ]);
     } finally {
@@ -167,7 +169,7 @@ Ask me anything about this project's available bank balance, pending vendor bill
       <button
         id="chatbot-trigger-btn"
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-40 bg-[#2563EB] hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+        className="fixed bottom-6 right-6 z-40 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
         title="Ask Financial Co-pilot"
       >
         <MessageSquare className="h-6 w-6" />
@@ -206,7 +208,7 @@ Ask me anything about this project's available bank balance, pending vendor bill
               <div
                 className={`max-w-[85%] rounded-2xl p-3.5 text-xs font-medium leading-relaxed shadow-xs ${
                   msg.sender === 'user'
-                    ? 'bg-[#2563EB] text-white rounded-br-none'
+                    ? 'bg-blue-600 text-white rounded-br-none'
                     : 'bg-white text-gray-800 border border-gray-200 rounded-bl-none'
                 }`}
               >
@@ -282,7 +284,7 @@ Ask me anything about this project's available bank balance, pending vendor bill
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="p-2.5 bg-[#2563EB] text-white rounded-xl hover:bg-blue-700 active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
+            className="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 disabled:opacity-40 transition-all cursor-pointer"
           >
             <Send className="h-4 w-4" />
           </button>

@@ -6,8 +6,8 @@
 export interface CustomerCollection {
   id: string;
   customerName: string;
-  amount: number; // Receivable in Rs. Lakhs
-  collectedAmount: number; // Collected in Rs. Lakhs
+  amount: number; // Receivable in Rupees (literal)
+  collectedAmount: number; // Collected in Rupees (literal)
   dueDate: string;
   status: 'Paid' | 'Pending' | 'Overdue';
 }
@@ -15,8 +15,8 @@ export interface CustomerCollection {
 export interface VendorPayment {
   id: string;
   vendorName: string;
-  amount: number; // Payable in Rs. Lakhs
-  paidAmount: number; // Paid in Rs. Lakhs
+  amount: number; // Payable in Rupees (literal)
+  paidAmount: number; // Paid in Rupees (literal)
   dueDate: string;
   status: 'Paid' | 'Pending' | 'Overdue';
   department?: string;
@@ -27,13 +27,13 @@ export interface BankTransaction {
   date: string;
   description: string;
   type: 'Deposit' | 'Withdrawal' | 'Transfer';
-  amount: number; // in Rs. Lakhs
+  amount: number; // in Rupees (literal)
 }
 
 export interface BudgetVsActualItem {
   category: string;
-  budgeted: number; // Planned budget in Rs. Lakhs
-  actual: number;   // Actual expense in Rs. Lakhs
+  budgeted: number; // Planned budget in Rupees (literal)
+  actual: number;   // Actual expense in Rupees (literal)
 }
 
 export interface PeriodInflow {

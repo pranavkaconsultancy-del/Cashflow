@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Project, BankTransaction } from '../types';
 import { Landmark, Plus, ArrowUpRight, ArrowDownRight, RefreshCw, Trash2 } from 'lucide-react';
+import { formatCurrency } from '../utils/calculations';
 
 interface BankLedgerViewProps {
   project: Project;
@@ -14,8 +15,8 @@ export default function BankLedgerView({ project, onUpdateProject }: BankLedgerV
   const [type, setType] = useState<BankTransaction['type']>('Deposit');
   const [amount, setAmount] = useState('');
 
-  // Initial balance anchor
-  const startingBalance = 50.0;
+  // Initial balance anchor (50 Lakhs literal)
+  const startingBalance = 5000000;
 
   // Compute running balances
   const ledgerRows = useMemo(() => {
@@ -79,7 +80,7 @@ export default function BankLedgerView({ project, onUpdateProject }: BankLedgerV
 
         <div className="bg-slate-50 border border-gray-200 px-4 py-2.5 rounded-lg text-right">
           <span className="block text-[9px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Ledger Base Balance</span>
-          <span className="text-sm font-extrabold text-gray-900">Rs. {startingBalance.toFixed(2)} Lakhs</span>
+          <span className="text-sm font-extrabold text-gray-900">{formatCurrency(startingBalance)}</span>
         </div>
       </div>
 
@@ -91,7 +92,7 @@ export default function BankLedgerView({ project, onUpdateProject }: BankLedgerV
         </div>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>Record Transaction</span>
@@ -137,13 +138,13 @@ export default function BankLedgerView({ project, onUpdateProject }: BankLedgerV
               />
             </div>
             <div>
-              <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount (Rs. Lakhs)</label>
+              <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount (₹)</label>
               <input
                 type="number"
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="e.g. 15.5"
+                placeholder="e.g. 1500000"
                 className="w-full bg-gray-50 border border-gray-250 rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-600"
               />
             </div>
@@ -159,7 +160,7 @@ export default function BankLedgerView({ project, onUpdateProject }: BankLedgerV
             </button>
             <button
               type="submit"
-              className="bg-[#2563EB] text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700"
+              className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700"
             >
               Post Transaction
             </button>
@@ -210,9 +211,9 @@ export default function BankLedgerView({ project, onUpdateProject }: BankLedgerV
                       </span>
                     </td>
                     <td className={`py-3 px-5 font-bold ${item.type === 'Deposit' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {item.type === 'Deposit' ? '+' : '-'} Rs. {item.amount.toFixed(2)} Lakhs
+                      {item.type === 'Deposit' ? '+' : '-'}{formatCurrency(item.amount)}
                     </td>
-                    <td className="py-3 px-5 font-bold text-gray-800">Rs. {item.runningBalance.toFixed(2)} Lakhs</td>
+                    <td className="py-3 px-5 font-bold text-gray-800">{formatCurrency(item.runningBalance)}</td>
                     <td className="py-3 px-5 text-right">
                       <button
                         onClick={() => handleDelete(item.id)}

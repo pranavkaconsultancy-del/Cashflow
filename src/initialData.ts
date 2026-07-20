@@ -48,7 +48,7 @@ export const getDepartmentByCategory = (category: string): string => {
   return 'Operations';
 };
 
-export const createBlankPeriod = (name: string, prevBankBalance = 15.0, prevCashInHand = 2.0): Period => {
+export const createBlankPeriod = (name: string, prevBankBalance = 1500000, prevCashInHand = 200000): Period => {
   return {
     id: `per-${generateId()}`,
     name,
@@ -446,7 +446,7 @@ export const getSeedProjects = (): Project[] => {
     {
       id: 'proj-1',
       name: 'Vanguard Heights Residence',
-      company: 'Vanguard Developers',
+      company: 'SyncAI Consultancy Pvt. Ltd.',
       status: 'Ongoing',
       financialYear: 'FY 2026-27',
       periods: p1Periods,
@@ -485,14 +485,25 @@ export const getSeedProjects = (): Project[] => {
     ...proj,
     periods: proj.periods.map(per => ({
       ...per,
+      bankBalance: per.bankBalance * 100000,
+      cashInHand: per.cashInHand * 100000,
       inflows: per.inflows.map(inf => ({
         ...inf,
+        budgeted: inf.budgeted * 100000,
+        actual: inf.actual * 100000,
         department: getDepartmentByCategory(inf.category)
       })),
       outflows: per.outflows.map(out => ({
         ...out,
+        budgeted: out.budgeted * 100000,
+        actual: out.actual * 100000,
         department: getDepartmentByCategory(out.category)
       }))
+    })),
+    collections: proj.collections.map(col => ({
+      ...col,
+      amount: col.amount * 100000,
+      collectedAmount: col.collectedAmount * 100000
     })),
     payments: proj.payments.map(pay => {
       let deptCat = 'Construction Cost';
@@ -505,8 +516,19 @@ export const getSeedProjects = (): Project[] => {
       }
       return {
         ...pay,
+        amount: pay.amount * 100000,
+        paidAmount: pay.paidAmount * 100000,
         department: getDepartmentByCategory(deptCat)
       };
-    })
+    }),
+    transactions: proj.transactions.map(tx => ({
+      ...tx,
+      amount: tx.amount * 100000
+    })),
+    budgetVsActual: proj.budgetVsActual.map(b => ({
+      ...b,
+      budgeted: b.budgeted * 100000,
+      actual: b.actual * 100000
+    }))
   }));
 };

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Project } from '../types';
-import { calculatePeriodTotals } from '../utils/calculations';
+import { calculatePeriodTotals, formatCurrency } from '../utils/calculations';
 import {
   ResponsiveContainer,
   LineChart,
@@ -34,7 +34,13 @@ interface DashboardViewProps {
   projects: Project[];
 }
 
-const COLORS = ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#3B82F6', '#14B8A6'];
+const COLORS = ['#1a6e8e', '#10B981', '#1a3a6e', '#EF4444', '#8B5CF6', '#EC4899', '#0f9b8e', '#14B8A6'];
+
+const formatPlainNumber = (v: any) => {
+  const num = Number(v);
+  if (isNaN(num)) return '0';
+  return num.toLocaleString('en-US');
+};
 
 export default function DashboardView({ project, projects }: DashboardViewProps) {
   
@@ -194,7 +200,7 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
         <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
           <div>
             <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Cash Inflow</span>
-            <span className="block text-lg font-black text-emerald-600 mt-1">Rs. {summary.totalInflow.toFixed(2)} L</span>
+            <span className="block text-lg font-black text-emerald-600 mt-1">{formatCurrency(summary.totalInflow)}</span>
           </div>
           <div className="absolute bottom-3 right-3 text-emerald-100">
             <Coins className="h-10 w-10 stroke-1" />
@@ -205,7 +211,7 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
         <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
           <div>
             <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Cash Outflow</span>
-            <span className="block text-lg font-black text-rose-600 mt-1">Rs. {summary.totalOutflow.toFixed(2)} L</span>
+            <span className="block text-lg font-black text-rose-600 mt-1">{formatCurrency(summary.totalOutflow)}</span>
             <span className="block text-[9px] text-gray-500 italic mt-0.5 leading-none">Plain-English: Building & office spend.</span>
           </div>
           <div className="absolute bottom-3 right-3 text-rose-100">
@@ -218,7 +224,7 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
           <div>
             <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Net Cash Flow</span>
             <span className={`block text-lg font-black mt-1 ${summary.netCashFlow >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
-              Rs. {summary.netCashFlow.toFixed(2)} L
+              {formatCurrency(summary.netCashFlow)}
             </span>
             <span className="block text-[9px] text-gray-500 italic mt-0.5 leading-none">Plain-English: Money left after spending.</span>
           </div>
@@ -231,7 +237,7 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
         <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
           <div>
             <span className="block text-[9px] font-mono tracking-wider uppercase text-blue-800 font-bold">Closing Balance</span>
-            <span className="block text-lg font-black text-blue-900 mt-1">Rs. {summary.closingBalance.toFixed(2)} L</span>
+            <span className="block text-lg font-black text-blue-900 mt-1">{formatCurrency(summary.closingBalance)}</span>
             <span className="block text-[9px] text-blue-700 italic mt-0.5 leading-none font-medium">Plain-English: Total cash on hand now.</span>
           </div>
           <div className="absolute bottom-3 right-3 text-blue-200/50">
@@ -243,7 +249,7 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
         <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
           <div>
             <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Available Cash Position</span>
-            <span className="block text-lg font-black text-gray-900 mt-1">Rs. {summary.closingBalance.toFixed(2)} L</span>
+            <span className="block text-lg font-black text-gray-900 mt-1">{formatCurrency(summary.closingBalance)}</span>
             <span className="block text-[9px] text-gray-500 italic mt-0.5 leading-none">Plain-English: Instantly spending-ready cash.</span>
           </div>
           <div className="absolute bottom-3 right-3 text-gray-100">
@@ -266,8 +272,8 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
               <BarChart data={monthlyTrendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
+                <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Bar dataKey="Inflow" fill="#10B981" radius={[3, 3, 0, 0]} />
                 <Bar dataKey="Outflow" fill="#EF4444" radius={[3, 3, 0, 0]} />
@@ -298,7 +304,7 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                  <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                   <Legend wrapperStyle={{ fontSize: 9 }} layout="vertical" align="right" verticalAlign="middle" />
                 </PieChart>
               </ResponsiveContainer>
@@ -319,8 +325,8 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                 <LineChart data={collectionTrendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                  <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
+                  <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
                   <Line type="monotone" dataKey="Collected" stroke="#10B981" strokeWidth={2.5} activeDot={{ r: 6 }} />
                   <Line type="monotone" dataKey="Pending" stroke="#F59E0B" strokeWidth={2.5} />
@@ -343,11 +349,11 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                 <BarChart data={budgetVsActualData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                  <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
+                  <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Bar dataKey="Budgeted" fill="#93C5FD" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="Actual" fill="#2563EB" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="Budgeted" fill="#afd4dc" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="Actual" fill="#1a6e8e" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -355,19 +361,19 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
         </div>
 
         {/* Project-wise comparative flow (Shown only when comparing or available as summary) */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs lg:col-span-2">
+        <div className="bg-white rounded-xl border border-gray-250 p-5 shadow-xs lg:col-span-2">
           <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Cross-Project Comparative Cash Position</h4>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparativeProjectsData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                 <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
-                <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
+                <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Bar dataKey="Inflows" fill="#10B981" radius={[3, 3, 0, 0]} />
                 <Bar dataKey="Outflows" fill="#EF4444" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Closing" fill="#2563EB" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Closing" fill="#1a3a6e" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -395,7 +401,7 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                       <Cell key={`cell-rev-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                  <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                   <Legend wrapperStyle={{ fontSize: 9 }} layout="vertical" align="right" verticalAlign="middle" />
                 </PieChart>
               </ResponsiveContainer>
@@ -416,8 +422,8 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                 <LineChart data={monthlyGrowthTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(v) => [`Rs. ${Number(v).toFixed(1)} L`]} />
+                  <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
+                  <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
                   <Line type="monotone" dataKey="Net Cash Flow" stroke="#3B82F6" strokeWidth={3} activeDot={{ r: 6 }} />
                 </LineChart>

@@ -5,6 +5,18 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Redefining Tailwind blue scale to match SyncAI's blue-to-teal branding */
+  --color-blue-50: #f0f7f8;
+  --color-blue-100: #d6e9ed;
+  --color-blue-200: #afd4dc;
+  --color-blue-300: #7eb3c5;
+  --color-blue-400: #4a8da4;
+  --color-blue-500: #1a6e8e; /* Suggested middle tone teal-blue accent */
+  --color-blue-600: #1a6e8e; /* Suggested middle tone teal-blue accent */
+  --color-blue-700: #145670;
+  --color-blue-800: #1a3a6e; /* Deep blue from logo */
+  --color-blue-900: #0f2445;
 }
 
 /* Custom scrollbars for high density tables */

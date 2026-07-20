@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Project } from '../types';
 import { ArrowUpRight, ArrowDownRight, Percent, AlertCircle, Info } from 'lucide-react';
+import { formatCurrency } from '../utils/calculations';
 
 interface BudgetVsActualViewProps {
   project: Project;
@@ -81,14 +82,14 @@ export default function BudgetVsActualView({ project }: BudgetVsActualViewProps)
                 varianceData.map((row, idx) => (
                   <tr key={idx} className="hover:bg-gray-50/50">
                     <td className="py-3.5 px-5 font-bold text-gray-900">{row.category}</td>
-                    <td className="py-3.5 px-5 font-medium">Rs. {row.budgeted.toFixed(2)} Lakhs</td>
-                    <td className="py-3.5 px-5 font-semibold text-gray-800">Rs. {row.actual.toFixed(2)} Lakhs</td>
+                    <td className="py-3.5 px-5 font-medium">{formatCurrency(row.budgeted)}</td>
+                    <td className="py-3.5 px-5 font-semibold text-gray-800">{formatCurrency(row.actual)}</td>
                     <td
                       className={`py-3.5 px-5 font-bold ${
                         row.isOverBudget ? 'text-rose-600' : row.variance > 0 ? 'text-emerald-600' : 'text-gray-800'
                       }`}
                     >
-                      {row.isOverBudget ? '-' : '+'} Rs. {Math.abs(row.variance).toFixed(2)} Lakhs
+                      {row.isOverBudget ? '-' : '+'}{formatCurrency(Math.abs(row.variance))}
                     </td>
                     <td className="py-3.5 px-5 font-medium">
                       <div className="flex items-center gap-2">

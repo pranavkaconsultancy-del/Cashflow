@@ -19,6 +19,8 @@ import BudgetVsActualView from './components/BudgetVsActualView';
 import PredictionsView from './components/PredictionsView';
 import ReportsView from './components/ReportsView';
 import ChatbotPanel from './components/ChatbotPanel';
+import ImportView from './components/ImportView';
+import Logo from './components/Logo';
 
 import {
   Building2,
@@ -95,24 +97,24 @@ export default function App() {
     const newProj: Project = {
       id: newId,
       name: newProjData.name,
-      company: newProjData.company || 'Vanguard Developers',
+      company: newProjData.company || 'SyncAI Consultancy Pvt. Ltd.',
       status: newProjData.status,
       financialYear: newProjData.financialYear,
       periods: [
         {
           id: `per-${Math.random().toString(36).substring(2, 9)}`,
           name: 'Jan 2026',
-          bankBalance: 50.0,
-          cashInHand: 5.0,
+          bankBalance: 5000000,
+          cashInHand: 500000,
           inflows: [
-            { category: 'Booking Amount', budgeted: 10.0, actual: 10.0 },
-            { category: 'Down Payment', budgeted: 15.0, actual: 15.0 },
-            { category: 'Installment Collection', budgeted: 20.0, actual: 20.0 }
+            { category: 'Booking Amount', budgeted: 1000000, actual: 1000000 },
+            { category: 'Down Payment', budgeted: 1500000, actual: 1500000 },
+            { category: 'Installment Collection', budgeted: 2000000, actual: 2000000 }
           ],
           outflows: [
-            { category: 'Construction Cost', budgeted: 15.0, actual: 15.0 },
-            { category: 'Material Purchase', budgeted: 10.0, actual: 10.0 },
-            { category: 'Labour Cost', budgeted: 5.0, actual: 5.0 }
+            { category: 'Construction Cost', budgeted: 1500000, actual: 1500000 },
+            { category: 'Material Purchase', budgeted: 1000000, actual: 1000000 },
+            { category: 'Labour Cost', budgeted: 500000, actual: 500000 }
           ]
         }
       ],
@@ -120,9 +122,9 @@ export default function App() {
       payments: [],
       transactions: [],
       budgetVsActual: [
-        { category: 'Construction Cost', budgeted: 15.0, actual: 15.0 },
-        { category: 'Material Purchase', budgeted: 10.0, actual: 10.0 },
-        { category: 'Labour Cost', budgeted: 5.0, actual: 5.0 }
+        { category: 'Construction Cost', budgeted: 1500000, actual: 1500000 },
+        { category: 'Material Purchase', budgeted: 1000000, actual: 1000000 },
+        { category: 'Labour Cost', budgeted: 500000, actual: 500000 }
       ]
     };
 
@@ -142,16 +144,17 @@ export default function App() {
         {/* Global sticky header with project switcher switcher ALWAYS visible! */}
         <header className="sticky top-0 z-20 bg-white border-b border-gray-200 py-3 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
           <div>
-            <h1 className="text-sm font-black font-display uppercase tracking-widest text-blue-600">
-              Vanguard Portfolio Co-pilot
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Logo size="sm" />
+              <span className="text-[10px] font-extrabold font-mono text-blue-800 uppercase px-1.5 py-0.5 bg-blue-50 border border-blue-100 rounded-md">Co-pilot</span>
+            </div>
+            <div className="flex items-center gap-2 mt-1.5">
               <span className="text-[11px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Active Project Context:</span>
               <select
                 id="global-project-switcher"
                 value={activeProjectId}
                 onChange={(e) => setActiveProjectId(e.target.value)}
-                className="bg-[#2563EB]/10 border border-blue-200 text-[#2563EB] text-xs font-bold rounded-lg px-2.5 py-1 cursor-pointer focus:outline-hidden"
+                className="bg-blue-600/10 border border-blue-200 text-blue-600 text-xs font-bold rounded-lg px-2.5 py-1 cursor-pointer focus:outline-hidden"
               >
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -164,7 +167,7 @@ export default function App() {
 
           <div className="text-[10px] text-gray-500 font-mono text-right hidden lg:block leading-relaxed">
             <div>Holding Company Portfolio Control Center</div>
-            <div className="font-semibold text-gray-700">Currency: Rs. Lakhs (1 L = ₹1,00,000)</div>
+            <div className="font-semibold text-gray-700">Currency: INR (₹)</div>
           </div>
         </header>
 
@@ -232,6 +235,13 @@ export default function App() {
             <ReportsView
               project={activeProject}
               projects={projects}
+            />
+          )}
+
+          {currentTab === 'import' && (
+            <ImportView
+              project={activeProject}
+              onUpdateProject={handleUpdateProject}
             />
           )}
 

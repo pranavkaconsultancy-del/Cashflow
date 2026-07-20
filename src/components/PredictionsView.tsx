@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Project } from '../types';
-import { calculatePeriodTotals } from '../utils/calculations';
+import { calculatePeriodTotals, formatCurrency } from '../utils/calculations';
 import {
   ResponsiveContainer,
   BarChart,
@@ -18,8 +18,8 @@ interface PredictionsViewProps {
 }
 
 export default function PredictionsView({ project }: PredictionsViewProps) {
-  // Live configurable safety buffer threshold
-  const [threshold, setThreshold] = useState<number>(20);
+  // Live configurable safety buffer threshold (20 Lakhs literal: 2,000,000)
+  const [threshold, setThreshold] = useState<number>(2000000);
   const [loading, setLoading] = useState<boolean>(false);
   const [aiData, setAiData] = useState<{
     recommendations: string[];
@@ -163,9 +163,9 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
           let localGrowthTrend = "Steady and stable operational cash flow.";
 
           if (forecast30.balance < threshold) {
-            localShortageAlert = `CRITICAL shortage risk! Cash reserve projected to fall to Rs. ${forecast30.balance.toFixed(2)} L (below safety buffer Rs. ${threshold} L) in next 30 days.`;
+            localShortageAlert = `CRITICAL shortage risk! Cash reserve projected to fall to ${formatCurrency(forecast30.balance)} (below safety buffer ${formatCurrency(threshold)}) in next 30 days.`;
           } else if (forecast90.balance < threshold) {
-            localShortageAlert = `WARNING: Cash reserve projected to fall to Rs. ${forecast90.balance.toFixed(2)} L (below safety buffer Rs. ${threshold} L) in 90 days.`;
+            localShortageAlert = `WARNING: Cash reserve projected to fall to ${formatCurrency(forecast90.balance)} (below safety buffer ${formatCurrency(threshold)}) in 90 days.`;
           }
 
           if (project.periods.length >= 2) {
@@ -173,23 +173,23 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
             const prev = project.periods[project.periods.length - 2];
             const lastNet = calculatePeriodTotals(last).netCashFlow;
             const prevNet = calculatePeriodTotals(prev).netCashFlow;
-            if (lastNet > prevNet + 5) {
-              localGrowthTrend = `Accelerating: Net cash flow increased from Rs. ${prevNet.toFixed(1)} L to Rs. ${lastNet.toFixed(1)} L, showing rising sales velocity.`;
-            } else if (lastNet < prevNet - 5) {
-              localGrowthTrend = `Declining: Spend velocity has exceeded income, dropping net cash flow from Rs. ${prevNet.toFixed(1)} L to Rs. ${lastNet.toFixed(1)} L. Action is recommended to curb expenses.`;
+            if (lastNet > prevNet + 500000) {
+              localGrowthTrend = `Accelerating: Net cash flow increased from ${formatCurrency(prevNet)} to ${formatCurrency(lastNet)}, showing rising sales velocity.`;
+            } else if (lastNet < prevNet - 500000) {
+              localGrowthTrend = `Declining: Spend velocity has exceeded income, dropping net cash flow from ${formatCurrency(prevNet)} to ${formatCurrency(lastNet)}. Action is recommended to curb expenses.`;
             } else {
-              localGrowthTrend = `Steady: Balance fluctuations remain stable at around Rs. ${lastNet.toFixed(1)} L net monthly.`;
+              localGrowthTrend = `Steady: Balance fluctuations remain stable at around ${formatCurrency(lastNet)} net monthly.`;
             }
           }
 
           if (overdueCollections > 0) {
-            localRecs.push(`Follow up with overdue customers immediately to retrieve Rs. ${overdueCollections.toFixed(2)} Lakhs in outstanding receipts. This will raise your cash buffer.`);
+            localRecs.push(`Follow up with overdue customers immediately to retrieve ${formatCurrency(overdueCollections)} in outstanding receipts. This will raise your cash buffer.`);
           }
           if (overduePayables > 0) {
-            localRecs.push(`Establish a structured pay-off program with partners for Rs. ${overduePayables.toFixed(2)} Lakhs in overdue accounts payable to avoid interest penalties.`);
+            localRecs.push(`Establish a structured pay-off program with partners for ${formatCurrency(overduePayables)} in overdue accounts payable to avoid interest penalties.`);
           }
           if (forecast30.balance < threshold) {
-            localRecs.push(`Defer Rs. 15-20 Lakhs of non-essential consultant, utility, or office overhead expenses to maintain liquidity next month.`);
+            localRecs.push(`Defer ${formatCurrency(1500000)} - ${formatCurrency(2000000)} of non-essential consultant, utility, or office overhead expenses to maintain liquidity next month.`);
           }
           if (localRecs.length < 3) {
             localRecs.push("Maintain a strict checking account reserve buffer of 20% to prevent unexpected subcontractor premium charges.");
@@ -261,13 +261,13 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
             <div className="flex-1 space-y-1.5">
               <div className="flex items-center justify-between text-[10px] font-bold text-gray-600 font-mono">
                 <span>SAFETY RESERVE BUFFER</span>
-                <span className="text-blue-600">Rs. {threshold} L</span>
+                <span className="text-blue-600">{formatCurrency(threshold)}</span>
               </div>
               <input
                 type="range"
                 min="0"
-                max="100"
-                step="5"
+                max="10000000"
+                step="250000"
                 value={threshold}
                 onChange={(e) => setThreshold(Number(e.target.value))}
                 className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
@@ -294,16 +294,16 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="bg-gray-50 p-2.5 rounded-lg">
               <span className="block text-[9px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Expected Inflow</span>
-              <span className="text-sm font-black text-emerald-600">Rs. {forecast.forecast30.inflow} L</span>
+              <span className="text-sm font-black text-emerald-600">{formatCurrency(forecast.forecast30.inflow)}</span>
             </div>
             <div className="bg-gray-50 p-2.5 rounded-lg">
               <span className="block text-[9px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Expected Outflow</span>
-              <span className="text-sm font-black text-rose-600 font-medium">Rs. {forecast.forecast30.outflow} L</span>
+              <span className="text-sm font-black text-rose-600 font-medium">{formatCurrency(forecast.forecast30.outflow)}</span>
             </div>
             <div className="bg-blue-50/50 p-2.5 rounded-lg border border-blue-100">
               <span className="block text-[9px] text-blue-800 font-mono uppercase tracking-wider font-bold">Projected Cash</span>
               <span className={`text-sm font-black ${forecast.forecast30.balance < threshold ? 'text-red-600' : 'text-blue-900'}`}>
-                Rs. {forecast.forecast30.balance} L
+                {formatCurrency(forecast.forecast30.balance)}
               </span>
             </div>
           </div>
@@ -314,7 +314,7 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
                 <AlertTriangle className="h-4.5 w-4.5 text-rose-600 shrink-0 mt-0.5 animate-pulse" />
                 <div>
                   <h5 className="font-bold text-rose-950">Active Cash Shortage Alert</h5>
-                  <p className="text-gray-600">Projected reserves fall below your Rs. {threshold} L safety threshold. Immediate receivables follow-up or payment postponement is needed.</p>
+                  <p className="text-gray-600">Projected reserves fall below your {formatCurrency(threshold)} safety threshold. Immediate receivables follow-up or payment postponement is needed.</p>
                 </div>
               </>
             ) : (
@@ -322,7 +322,7 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
                 <CheckCircle className="h-4.5 w-4.5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-emerald-950">Healthy Reserve Buffer</h5>
-                  <p className="text-gray-600">Project checking account will remain comfortably positive and above your Rs. {threshold} L buffer over the next 30 days.</p>
+                  <p className="text-gray-600">Project checking account will remain comfortably positive and above your {formatCurrency(threshold)} buffer over the next 30 days.</p>
                 </div>
               </>
             )}
@@ -339,16 +339,16 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="bg-gray-50 p-2.5 rounded-lg">
               <span className="block text-[9px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Expected Inflow</span>
-              <span className="text-sm font-black text-emerald-600">Rs. {forecast.forecast90.inflow} L</span>
+              <span className="text-sm font-black text-emerald-600">{formatCurrency(forecast.forecast90.inflow)}</span>
             </div>
             <div className="bg-gray-50 p-2.5 rounded-lg">
               <span className="block text-[9px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Expected Outflow</span>
-              <span className="text-sm font-black text-rose-600 font-medium">Rs. {forecast.forecast90.outflow} L</span>
+              <span className="text-sm font-black text-rose-600 font-medium">{formatCurrency(forecast.forecast90.outflow)}</span>
             </div>
             <div className="bg-blue-50/50 p-2.5 rounded-lg border border-blue-100">
               <span className="block text-[9px] text-blue-800 font-mono uppercase tracking-wider font-bold">Projected Cash</span>
               <span className={`text-sm font-black ${forecast.forecast90.balance < threshold ? 'text-amber-600 font-bold' : 'text-blue-900'}`}>
-                Rs. {forecast.forecast90.balance} L
+                {formatCurrency(forecast.forecast90.balance)}
               </span>
             </div>
           </div>
@@ -359,7 +359,7 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
                 <AlertTriangle className="h-4.5 w-4.5 text-amber-500 shrink-0 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-amber-950">90-Day Cash Flow Squeeze</h5>
-                  <p className="text-gray-600">Long-term predictions show reserves sliding below your Rs. {threshold} L threshold within 90 days. Slower construction cycles are advised.</p>
+                  <p className="text-gray-600">Long-term predictions show reserves sliding below your {formatCurrency(threshold)} threshold within 90 days. Slower construction cycles are advised.</p>
                 </div>
               </>
             ) : (
@@ -367,7 +367,7 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
                 <CheckCircle className="h-4.5 w-4.5 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
                   <h5 className="font-bold text-emerald-950">Strong Long-term Runway</h5>
-                  <p className="text-gray-600">Excellent 3-month forecast. Available checking balances are fully projected to hold strong over the Rs. {threshold} L buffer.</p>
+                  <p className="text-gray-600">Excellent 3-month forecast. Available checking balances are fully projected to hold strong over the {formatCurrency(threshold)} buffer.</p>
                 </div>
               </>
             )}
@@ -478,11 +478,11 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
               <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} />
               <YAxis fontSize={11} tickLine={false} axisLine={false} />
-              <Tooltip formatter={(value) => [`Rs. ${Number(value).toFixed(2)} Lakhs`]} />
+              <Tooltip formatter={(value) => [formatCurrency(Number(value))]} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Bar dataKey="Inflow" fill="#10B981" radius={[4, 4, 0, 0]} />
               <Bar dataKey="Outflow" fill="#EF4444" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Cash Position" fill="#2563EB" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Cash Position" fill="#1a6e8e" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

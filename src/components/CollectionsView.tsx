@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Project, CustomerCollection } from '../types';
 import { Coins, Plus, CheckCircle, Clock, AlertTriangle, Trash2, ArrowUpRight } from 'lucide-react';
+import { formatCurrency } from '../utils/calculations';
 
 interface CollectionsViewProps {
   project: Project;
@@ -75,7 +76,7 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
   const handleQuickCollect = (id: string, full: boolean) => {
     const collections = project.collections.map((c) => {
       if (c.id === id) {
-        const nextCollected = full ? c.amount : Math.min(c.amount, c.collectedAmount + 10);
+        const nextCollected = full ? c.amount : Math.min(c.amount, c.collectedAmount + 1000000);
         const isPaid = nextCollected >= c.amount;
         return {
           ...c,
@@ -96,7 +97,7 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
           <div>
             <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Customer Invoices</span>
-            <span className="block text-xl font-black text-gray-900 mt-1">Rs. {kpis.total.toFixed(2)} L</span>
+            <span className="block text-xl font-black text-gray-900 mt-1">{formatCurrency(kpis.total)}</span>
             <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Total value of apartments sold & billed to purchasers.</p>
           </div>
           <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
@@ -108,7 +109,7 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
           <div>
             <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Collected Amount</span>
-            <span className="block text-xl font-black text-emerald-600 mt-1">Rs. {kpis.collected.toFixed(2)} L</span>
+            <span className="block text-xl font-black text-emerald-600 mt-1">{formatCurrency(kpis.collected)}</span>
             <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Cash received in our bank from customer payments.</p>
           </div>
           <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
@@ -120,7 +121,7 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
           <div>
             <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Pending Collection</span>
-            <span className="block text-xl font-black text-amber-500 mt-1">Rs. {kpis.pending.toFixed(2)} L</span>
+            <span className="block text-xl font-black text-amber-500 mt-1">{formatCurrency(kpis.pending)}</span>
             <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Billed amounts waiting to be paid by homeowners.</p>
           </div>
           <div className="p-3 bg-amber-50 text-amber-500 rounded-xl">
@@ -132,7 +133,7 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
           <div>
             <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Overdue Collection</span>
-            <span className="block text-xl font-black text-rose-600 mt-1">Rs. {kpis.overdue.toFixed(2)} L</span>
+            <span className="block text-xl font-black text-rose-600 mt-1">{formatCurrency(kpis.overdue)}</span>
             <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Payments delayed past their specified due dates.</p>
           </div>
           <div className="p-3 bg-rose-50 text-rose-600 rounded-xl">
@@ -149,7 +150,7 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
         </div>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="inline-flex items-center gap-1.5 bg-[#2563EB] hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           <span>Add Buyer Invoice</span>
@@ -183,23 +184,23 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
               />
             </div>
             <div>
-              <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Total Amount Billed (Rs. Lakhs)</label>
+              <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Total Amount Billed (₹)</label>
               <input
                 type="number"
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="e.g. 50.0"
+                placeholder="e.g. 5000000"
                 className="w-full bg-gray-50 border border-gray-250 rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-600"
               />
             </div>
             <div>
-              <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount Collected to Date (Rs. Lakhs)</label>
+              <label className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Amount Collected to Date (₹)</label>
               <input
                 type="number"
                 value={collectedAmount}
                 onChange={(e) => setCollectedAmount(e.target.value)}
-                placeholder="e.g. 10.0"
+                placeholder="e.g. 1000000"
                 className="w-full bg-gray-50 border border-gray-250 rounded-lg p-2 text-xs focus:ring-1 focus:ring-blue-600"
               />
             </div>
@@ -227,7 +228,7 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
             </button>
             <button
               type="submit"
-              className="bg-[#2563EB] text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700"
+              className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-blue-700"
             >
               Save Invoice
             </button>
@@ -263,9 +264,9 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
                   return (
                     <tr key={item.id} className="hover:bg-gray-50/50">
                       <td className="py-3 px-5 font-bold text-gray-900">{item.customerName}</td>
-                      <td className="py-3 px-5">Rs. {item.amount.toFixed(2)} Lakhs</td>
-                      <td className="py-3 px-5 font-semibold text-emerald-600">Rs. {item.collectedAmount.toFixed(2)} Lakhs</td>
-                      <td className="py-3 px-5 font-semibold text-gray-800">Rs. {left.toFixed(2)} Lakhs</td>
+                      <td className="py-3 px-5">{formatCurrency(item.amount)}</td>
+                      <td className="py-3 px-5 font-semibold text-emerald-600">{formatCurrency(item.collectedAmount)}</td>
+                      <td className="py-3 px-5 font-semibold text-gray-800">{formatCurrency(left)}</td>
                       <td className="py-3 px-5 font-medium text-gray-500">{item.dueDate}</td>
                       <td className="py-3 px-5">
                         <span
@@ -286,7 +287,7 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
                             <button
                               onClick={() => handleQuickCollect(item.id, false)}
                               className="bg-gray-50 hover:bg-gray-100 border border-gray-250 text-gray-700 px-2 py-1 rounded text-[10px] font-semibold"
-                              title="Collect Rs. 10 Lakhs installment"
+                              title="Collect partial installment"
                             >
                               Collect Partial
                             </button>
