@@ -32,7 +32,9 @@ import {
   ShieldCheck,
   TrendingUp,
   FileText,
-  Plus
+  Plus,
+  Search,
+  Bell
 } from 'lucide-react';
 
 const STORAGE_KEY = 'real_estate_portfolio_projects_v2';
@@ -142,32 +144,67 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-[#F8F9FA]">
         
         {/* Global sticky header with project switcher switcher ALWAYS visible! */}
-        <header className="sticky top-0 z-20 bg-white border-b border-gray-200 py-3 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Logo size="sm" />
-              <span className="text-[10px] font-extrabold font-mono text-blue-800 uppercase px-1.5 py-0.5 bg-blue-50 border border-blue-100 rounded-md">Co-pilot</span>
-            </div>
-            <div className="flex items-center gap-2 mt-1.5">
-              <span className="text-[11px] text-gray-400 font-mono uppercase tracking-wider font-semibold">Active Project Context:</span>
-              <select
-                id="global-project-switcher"
-                value={activeProjectId}
-                onChange={(e) => setActiveProjectId(e.target.value)}
-                className="bg-blue-600/10 border border-blue-200 text-blue-600 text-xs font-bold rounded-lg px-2.5 py-1 cursor-pointer focus:outline-hidden"
-              >
-                {projects.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.status})
-                  </option>
-                ))}
-              </select>
+        <header className="sticky top-0 z-20 bg-gradient-to-r from-[#0F1F3D] to-[#0EA5B7] text-white py-3 px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 shadow-md border-b border-white/10">
+          {/* Left: Brand/Context Switcher */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 shrink-0">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Logo size="sm" variant="dark" />
+                <span className="text-[10px] font-extrabold font-mono text-[#0EA5B7] uppercase px-1.5 py-0.5 bg-white/10 border border-white/10 rounded-md">Co-pilot</span>
+              </div>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="text-[10px] text-white/75 font-mono uppercase tracking-wider font-semibold">Context:</span>
+                <select
+                  id="global-project-switcher"
+                  value={activeProjectId}
+                  onChange={(e) => setActiveProjectId(e.target.value)}
+                  className="bg-white/15 border border-white/20 text-white text-xs font-bold rounded-lg px-2 py-0.5 cursor-pointer focus:outline-hidden focus:bg-[#0F1F3D] transition-colors"
+                >
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id} className="text-gray-900 bg-white">
+                      {p.name} ({p.status})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
-          <div className="text-[10px] text-gray-500 font-mono text-right hidden lg:block leading-relaxed">
-            <div>Holding Company Portfolio Control Center</div>
-            <div className="font-semibold text-gray-700">Currency: INR (₹)</div>
+          {/* Center: Search Bar with subtle translucent/glassy look */}
+          <div className="flex-1 max-w-sm md:max-w-md mx-auto w-full relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-white/60" />
+            <input
+              type="text"
+              placeholder="Search accounts, ledgers, bills..."
+              className="w-full bg-white/15 placeholder-white/60 text-white text-xs pl-9 pr-4 py-2 rounded-lg border border-white/10 focus:outline-hidden focus:bg-white/25 focus:border-white/30 transition-all backdrop-blur-xs"
+            />
+          </div>
+
+          {/* Right side: Bell icon, User avatar/profile chip */}
+          <div className="flex items-center justify-between md:justify-end gap-4 shrink-0">
+            <div className="flex items-center gap-3">
+              {/* Notification Bell */}
+              <button className="relative p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer">
+                <Bell className="h-4.5 w-4.5" />
+                <span className="absolute top-1 right-1 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                </span>
+              </button>
+
+              {/* User profile chip */}
+              <div className="flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full border border-white/10">
+                <div className="h-6 w-6 rounded-full bg-[#0EA5B7] border border-white/20 flex items-center justify-center overflow-hidden">
+                  <span className="text-[10px] font-black text-white">PK</span>
+                </div>
+                <span className="text-xs font-semibold text-white hidden sm:inline">Pranav K.</span>
+              </div>
+            </div>
+
+            <div className="text-[10px] text-white/90 font-mono text-right hidden xl:block leading-relaxed">
+              <div>Portfolio Control Center</div>
+              <div className="font-bold text-[#0EA5B7]">INR (₹)</div>
+            </div>
           </div>
         </header>
 

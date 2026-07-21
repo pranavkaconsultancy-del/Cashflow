@@ -470,8 +470,11 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
       </div>
 
       {/* Projections Chart */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
-        <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Forecasting Cash Runway Chart</h4>
+      <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm">
+        <div className="mb-4">
+          <h4 className="text-sm font-bold text-gray-900 tracking-tight">Forecasting Cash Runway Chart</h4>
+          <span className="text-[11px] text-gray-400 block mt-0.5">Visualizes expected inflows, spending outlays, and net cash balance trajectories over 30 and 90 days.</span>
+        </div>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
@@ -480,9 +483,9 @@ export default function PredictionsView({ project }: PredictionsViewProps) {
               <YAxis fontSize={11} tickLine={false} axisLine={false} />
               <Tooltip formatter={(value) => [formatCurrency(Number(value))]} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="Inflow" fill="#10B981" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Outflow" fill="#EF4444" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Cash Position" fill="#1a6e8e" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Inflow" fill="#0EA5B7" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Outflow" fill="#142A4D" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Cash Position" fill="#475569" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

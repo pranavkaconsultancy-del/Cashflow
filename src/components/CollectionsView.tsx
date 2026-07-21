@@ -94,50 +94,50 @@ export default function CollectionsView({ project, onUpdateProject }: Collection
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Receivables */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Customer Invoices</span>
-            <span className="block text-xl font-black text-gray-900 mt-1">{formatCurrency(kpis.total)}</span>
-            <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Total value of apartments sold & billed to purchasers.</p>
-          </div>
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="p-3.5 bg-blue-50 text-blue-600 rounded-lg shrink-0">
             <Coins className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Customer Invoices</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(kpis.total)}</span>
+            <p className="text-[9px] text-gray-400 mt-0.5 line-clamp-1">Apartments sold & billed.</p>
           </div>
         </div>
 
         {/* Collected Amount */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Collected Amount</span>
-            <span className="block text-xl font-black text-emerald-600 mt-1">{formatCurrency(kpis.collected)}</span>
-            <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Cash received in our bank from customer payments.</p>
-          </div>
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="p-3.5 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
             <CheckCircle className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Collected Amount</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(kpis.collected)}</span>
+            <p className="text-[9px] text-gray-400 mt-0.5 line-clamp-1">Cash received in bank.</p>
           </div>
         </div>
 
         {/* Pending Collection */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Pending Collection</span>
-            <span className="block text-xl font-black text-amber-500 mt-1">{formatCurrency(kpis.pending)}</span>
-            <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Billed amounts waiting to be paid by homeowners.</p>
-          </div>
-          <div className="p-3 bg-amber-50 text-amber-500 rounded-xl">
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="p-3.5 bg-amber-50 text-amber-500 rounded-lg shrink-0">
             <Clock className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Pending Collection</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(kpis.pending)}</span>
+            <p className="text-[9px] text-gray-400 mt-0.5 line-clamp-1">Waiting to be paid.</p>
           </div>
         </div>
 
         {/* Overdue Collection */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Overdue Collection</span>
-            <span className="block text-xl font-black text-rose-600 mt-1">{formatCurrency(kpis.overdue)}</span>
-            <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Payments delayed past their specified due dates.</p>
-          </div>
-          <div className="p-3 bg-rose-50 text-rose-600 rounded-xl">
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="p-3.5 bg-rose-50 text-rose-600 rounded-lg shrink-0">
             <AlertTriangle className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Overdue Collection</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(kpis.overdue)}</span>
+            <p className="text-[9px] text-gray-400 mt-0.5 line-clamp-1">Delayed past due dates.</p>
           </div>
         </div>
       </div>

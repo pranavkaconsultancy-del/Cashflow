@@ -14,7 +14,9 @@ import {
   Legend,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  AreaChart,
+  Area
 } from 'recharts';
 import {
   TrendingUp,
@@ -34,7 +36,7 @@ interface DashboardViewProps {
   projects: Project[];
 }
 
-const COLORS = ['#1a6e8e', '#10B981', '#1a3a6e', '#EF4444', '#8B5CF6', '#EC4899', '#0f9b8e', '#14B8A6'];
+const COLORS = ['#0EA5B7', '#142A4D', '#10B981', '#F59E0B', '#EF4444', '#6366F1', '#38BDF8', '#14B8A6'];
 
 const formatPlainNumber = (v: any) => {
   const num = Number(v);
@@ -197,63 +199,59 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
       {/* 5 KPI Cards at top */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Card 1: Total Inflow */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
-          <div>
-            <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Cash Inflow</span>
-            <span className="block text-lg font-black text-emerald-600 mt-1">{formatCurrency(summary.totalInflow)}</span>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all relative overflow-hidden">
+          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
+            <Coins className="h-6 w-6" />
           </div>
-          <div className="absolute bottom-3 right-3 text-emerald-100">
-            <Coins className="h-10 w-10 stroke-1" />
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Cash Inflow</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(summary.totalInflow)}</span>
           </div>
         </div>
 
         {/* Card 2: Total Outflow */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
-          <div>
-            <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Cash Outflow</span>
-            <span className="block text-lg font-black text-rose-600 mt-1">{formatCurrency(summary.totalOutflow)}</span>
-            <span className="block text-[9px] text-gray-500 italic mt-0.5 leading-none">Plain-English: Building & office spend.</span>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all relative overflow-hidden">
+          <div className="p-3 bg-rose-50 text-rose-600 rounded-lg shrink-0">
+            <ArrowDownRight className="h-6 w-6" />
           </div>
-          <div className="absolute bottom-3 right-3 text-rose-100">
-            <ArrowDownRight className="h-10 w-10 stroke-1" />
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Cash Outflow</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(summary.totalOutflow)}</span>
           </div>
         </div>
 
         {/* Card 3: Net Cash Flow */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
-          <div>
-            <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Net Cash Flow</span>
-            <span className={`block text-lg font-black mt-1 ${summary.netCashFlow >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all relative overflow-hidden">
+          <div className="p-3 bg-teal-50 text-teal-600 rounded-lg shrink-0">
+            <ArrowUpRight className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Net Cash Flow</span>
+            <span className={`block text-xl font-extrabold mt-1 truncate ${summary.netCashFlow >= 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
               {formatCurrency(summary.netCashFlow)}
             </span>
-            <span className="block text-[9px] text-gray-500 italic mt-0.5 leading-none">Plain-English: Money left after spending.</span>
-          </div>
-          <div className="absolute bottom-3 right-3 text-blue-100">
-            <ArrowUpRight className="h-10 w-10 stroke-1" />
           </div>
         </div>
 
         {/* Card 4: Closing Balance */}
-        <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
-          <div>
-            <span className="block text-[9px] font-mono tracking-wider uppercase text-blue-800 font-bold">Closing Balance</span>
-            <span className="block text-lg font-black text-blue-900 mt-1">{formatCurrency(summary.closingBalance)}</span>
-            <span className="block text-[9px] text-blue-700 italic mt-0.5 leading-none font-medium">Plain-English: Total cash on hand now.</span>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all relative overflow-hidden">
+          <div className="p-3 bg-blue-50 text-blue-600 rounded-lg shrink-0">
+            <Wallet className="h-6 w-6" />
           </div>
-          <div className="absolute bottom-3 right-3 text-blue-200/50">
-            <Wallet className="h-10 w-10 stroke-1" />
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-blue-500 font-bold">Closing Balance</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(summary.closingBalance)}</span>
           </div>
         </div>
 
         {/* Card 5: Available Cash */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs flex flex-col justify-between relative overflow-hidden">
-          <div>
-            <span className="block text-[9px] font-mono tracking-wider uppercase text-gray-400 font-bold">Available Cash Position</span>
-            <span className="block text-lg font-black text-gray-900 mt-1">{formatCurrency(summary.closingBalance)}</span>
-            <span className="block text-[9px] text-gray-500 italic mt-0.5 leading-none">Plain-English: Instantly spending-ready cash.</span>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all relative overflow-hidden">
+          <div className="p-3 bg-amber-50 text-amber-600 rounded-lg shrink-0">
+            <Coins className="h-6 w-6" />
           </div>
-          <div className="absolute bottom-3 right-3 text-gray-100">
-            <Coins className="h-10 w-10 stroke-1" />
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Available Cash Position</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(summary.closingBalance)}</span>
           </div>
         </div>
       </div>
@@ -265,8 +263,11 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Monthly Trend (Inflow vs Outflow Bar/Line) */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
-          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Monthly Inflow vs Outflow Trend</h4>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm">
+          <div className="mb-4">
+            <h4 className="text-sm font-bold text-gray-900 tracking-tight">Monthly Inflow vs Outflow Trend</h4>
+            <span className="text-[11px] text-gray-400 block mt-0.5">Visualizes the comparison between total money received and money spent over each month.</span>
+          </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyTrendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -275,16 +276,19 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                 <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
                 <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Bar dataKey="Inflow" fill="#10B981" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Outflow" fill="#EF4444" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Inflow" fill="#0EA5B7" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Outflow" fill="#142A4D" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Expense distribution Pie */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
-          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Expense Category Outlay Share</h4>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm">
+          <div className="mb-4">
+            <h4 className="text-sm font-bold text-gray-900 tracking-tight">Expense Category Outlay Share</h4>
+            <span className="text-[11px] text-gray-400 block mt-0.5">Shows the percentage breakdown of outgoing expenditures across various business operation categories.</span>
+          </div>
           <div className="h-64 w-full flex items-center justify-center">
             {categoryOutflowData.length === 0 ? (
               <span className="text-xs text-gray-400">No outflow records to plot yet.</span>
@@ -313,8 +317,11 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
         </div>
 
         {/* Collection Trend */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
-          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Cumulative Customer Collections Trend</h4>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm">
+          <div className="mb-4">
+            <h4 className="text-sm font-bold text-gray-900 tracking-tight">Cumulative Customer Collections Trend</h4>
+            <span className="text-[11px] text-gray-400 block mt-0.5">Tracks total invoiced client revenue against actual payments received over time.</span>
+          </div>
           <div className="h-64 w-full">
             {collectionTrendsData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-xs text-gray-400">
@@ -322,23 +329,36 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={collectionTrendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={collectionTrendsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorCollected" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0EA5B7" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#0EA5B7" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorPending" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#142A4D" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#142A4D" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
                   <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
                   <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Line type="monotone" dataKey="Collected" stroke="#10B981" strokeWidth={2.5} activeDot={{ r: 6 }} />
-                  <Line type="monotone" dataKey="Pending" stroke="#F59E0B" strokeWidth={2.5} />
-                </LineChart>
+                  <Area type="monotone" dataKey="Collected" stroke="#0EA5B7" strokeWidth={2.5} fillOpacity={1} fill="url(#colorCollected)" activeDot={{ r: 6 }} />
+                  <Area type="monotone" dataKey="Pending" stroke="#142A4D" strokeWidth={2.5} fillOpacity={1} fill="url(#colorPending)" />
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </div>
         </div>
 
         {/* Budget vs Actual (Grouped Bar) */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
-          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Outflow Budget vs Actual Outlays</h4>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm">
+          <div className="mb-4">
+            <h4 className="text-sm font-bold text-gray-900 tracking-tight">Outflow Budget vs Actual Outlays</h4>
+            <span className="text-[11px] text-gray-400 block mt-0.5">Compares budgeted business targets with actual monthly cash spending.</span>
+          </div>
           <div className="h-64 w-full">
             {budgetVsActualData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-xs text-gray-400">
@@ -352,8 +372,8 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                   <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
                   <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Bar dataKey="Budgeted" fill="#afd4dc" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="Actual" fill="#1a6e8e" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="Budgeted" fill="#142A4D" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="Actual" fill="#0EA5B7" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -361,8 +381,11 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
         </div>
 
         {/* Project-wise comparative flow (Shown only when comparing or available as summary) */}
-        <div className="bg-white rounded-xl border border-gray-250 p-5 shadow-xs lg:col-span-2">
-          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Cross-Project Comparative Cash Position</h4>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm lg:col-span-2">
+          <div className="mb-4">
+            <h4 className="text-sm font-bold text-gray-900 tracking-tight">Cross-Project Comparative Cash Position</h4>
+            <span className="text-[11px] text-gray-400 block mt-0.5">Compares financial performance and closing reserves across different project developments.</span>
+          </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparativeProjectsData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
@@ -371,17 +394,20 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
                 <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
                 <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Bar dataKey="Inflows" fill="#10B981" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Outflows" fill="#EF4444" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Closing" fill="#1a3a6e" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Inflows" fill="#0EA5B7" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Outflows" fill="#142A4D" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Closing" fill="#475569" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* New Chart 1: Revenue Distribution (Inflow Categories) */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
-          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Revenue Distribution by Inflow Category</h4>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm">
+          <div className="mb-4">
+            <h4 className="text-sm font-bold text-gray-900 tracking-tight">Revenue Distribution by Inflow Category</h4>
+            <span className="text-[11px] text-gray-400 block mt-0.5">Breaks down company incoming revenues by source and contract billing types.</span>
+          </div>
           <div className="h-64 w-full flex items-center justify-center">
             {revenueDistributionData.length === 0 ? (
               <span className="text-xs text-gray-400">No inflow records to plot yet.</span>
@@ -410,8 +436,11 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
         </div>
 
         {/* New Chart 2: Monthly Net Cash Flow Growth Trend */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs">
-          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider font-mono mb-4">Monthly Net Cash Flow Growth Trend</h4>
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm">
+          <div className="mb-4">
+            <h4 className="text-sm font-bold text-gray-900 tracking-tight">Monthly Net Cash Flow Growth Trend</h4>
+            <span className="text-[11px] text-gray-400 block mt-0.5">Displays the trajectory of monthly net cash inflows and gains.</span>
+          </div>
           <div className="h-64 w-full">
             {monthlyGrowthTrendData.length === 0 ? (
               <div className="h-full flex items-center justify-center text-xs text-gray-400">
@@ -419,14 +448,20 @@ export default function DashboardView({ project, projects }: DashboardViewProps)
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={monthlyGrowthTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <AreaChart data={monthlyGrowthTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorGrowth" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#0EA5B7" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#0EA5B7" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                   <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
                   <YAxis fontSize={10} tickLine={false} axisLine={false} tickFormatter={formatPlainNumber} />
                   <Tooltip formatter={(v) => [formatPlainNumber(v)]} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Line type="monotone" dataKey="Net Cash Flow" stroke="#3B82F6" strokeWidth={3} activeDot={{ r: 6 }} />
-                </LineChart>
+                  <Area type="monotone" dataKey="Net Cash Flow" stroke="#0EA5B7" strokeWidth={3} fillOpacity={1} fill="url(#colorGrowth)" activeDot={{ r: 6 }} />
+                </AreaChart>
               </ResponsiveContainer>
             )}
           </div>

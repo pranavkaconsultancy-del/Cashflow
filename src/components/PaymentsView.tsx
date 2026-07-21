@@ -94,50 +94,50 @@ export default function PaymentsView({ project, onUpdateProject }: PaymentsViewP
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Payables */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Vendor Invoices</span>
-            <span className="block text-xl font-black text-gray-900 mt-1">{formatCurrency(kpis.total)}</span>
-            <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Total value of cement, steel, & contracting bills received.</p>
-          </div>
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="p-3.5 bg-blue-50 text-blue-600 rounded-lg shrink-0">
             <CreditCard className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Total Vendor Invoices</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(kpis.total)}</span>
+            <p className="text-[9px] text-gray-400 mt-0.5 line-clamp-1">Cement, steel, & contracting bills.</p>
           </div>
         </div>
 
         {/* Paid Amount */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Paid Amount</span>
-            <span className="block text-xl font-black text-emerald-600 mt-1">{formatCurrency(kpis.paid)}</span>
-            <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Bills we have paid out of our bank to contractors.</p>
-          </div>
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="p-3.5 bg-emerald-50 text-emerald-600 rounded-lg shrink-0">
             <CheckCircle className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Paid Amount</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(kpis.paid)}</span>
+            <p className="text-[9px] text-gray-400 mt-0.5 line-clamp-1">Bills settled with contractors.</p>
           </div>
         </div>
 
         {/* Pending Amount */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Pending Payables</span>
-            <span className="block text-xl font-black text-amber-500 mt-1">{formatCurrency(kpis.pending)}</span>
-            <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Material or services received that we still owe cash for.</p>
-          </div>
-          <div className="p-3 bg-amber-50 text-amber-500 rounded-xl">
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="p-3.5 bg-amber-50 text-amber-500 rounded-lg shrink-0">
             <Clock className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Pending Payables</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(kpis.pending)}</span>
+            <p className="text-[9px] text-gray-400 mt-0.5 line-clamp-1">Pending payments owed.</p>
           </div>
         </div>
 
         {/* Overdue Payments */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-xs flex items-center justify-between">
-          <div>
-            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Overdue Payments</span>
-            <span className="block text-xl font-black text-rose-600 mt-1">{formatCurrency(kpis.overdue)}</span>
-            <p className="text-[10px] text-gray-500 mt-0.5">Plain-English: Bills where our payment date has lapsed.</p>
-          </div>
-          <div className="p-3 bg-rose-50 text-rose-600 rounded-xl">
+        <div className="bg-white rounded-xl border border-gray-150 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="p-3.5 bg-rose-50 text-rose-600 rounded-lg shrink-0">
             <ShieldAlert className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <span className="block text-[10px] font-mono tracking-wider uppercase text-gray-400 font-bold">Overdue Payments</span>
+            <span className="block text-xl font-extrabold text-gray-900 mt-1 truncate">{formatCurrency(kpis.overdue)}</span>
+            <p className="text-[9px] text-gray-400 mt-0.5 line-clamp-1">Bills with lapsed payment dates.</p>
           </div>
         </div>
       </div>

@@ -46,11 +46,11 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
   return (
     <>
       {/* Mobile Top Header with Hamburger */}
-      <div className="md:hidden flex items-center justify-between p-4 bg-white border-b border-gray-200 sticky top-0 z-30">
-        <Logo size="sm" />
+      <div className="md:hidden flex items-center justify-between p-4 bg-[#0F1F3D] border-b border-[#1e2d4a]/50 sticky top-0 z-30">
+        <Logo size="sm" variant="dark" />
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-600 transition-colors"
+          className="p-1.5 rounded-lg border border-[#1e2d4a] hover:bg-[#142A4D] text-gray-200 transition-colors"
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -58,17 +58,17 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed md:sticky top-0 left-0 z-40 h-screen md:h-screen w-64 bg-gray-50 border-r border-gray-200 flex flex-col p-4 shrink-0 transition-transform duration-300 md:translate-x-0 ${
+        className={`fixed md:sticky top-0 left-0 z-40 h-screen md:h-screen w-64 bg-[#0F1F3D] border-r border-[#1e2d4a]/50 flex flex-col p-4 shrink-0 transition-transform duration-300 md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
          } md:block`}
       >
         {/* Brand */}
         <div className="hidden md:flex items-center gap-3 mb-8 px-2 pt-2">
-          <Logo size="md" />
+          <Logo size="md" variant="dark" />
         </div>
 
         {/* Navigation */}
-        <nav className="space-y-1.5 flex-1">
+        <nav className="space-y-1.5 flex-1 overflow-y-auto">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentTab === item.id;
@@ -77,15 +77,15 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-r-lg rounded-l-none text-sm font-semibold transition-all cursor-pointer relative ${
                   isActive
-                    ? 'bg-white text-blue-600 border border-gray-200 shadow-xs'
-                    : 'text-gray-600 hover:bg-gray-200/50 hover:text-gray-900'
+                    ? 'bg-[#1E355E] text-white border-l-[4px] border-l-[#0EA5B7] pl-2 shadow-inner'
+                    : 'text-gray-300 hover:bg-[#142A4D]/70 hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`h-4 w-4 ${isActive ? 'text-blue-600' : 'text-gray-400'}`} />
-                  <span>{item.label}</span>
+                  <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-[#0EA5B7]' : 'text-gray-400'}`} />
+                  <span className="tracking-wide">{item.label}</span>
                 </div>
               </button>
             );
@@ -93,8 +93,13 @@ export default function Sidebar({ currentTab, setCurrentTab }: SidebarProps) {
         </nav>
 
         {/* Footer info */}
-        <div className="border-t border-gray-200 pt-4 mt-auto">
-          <div className="px-2 text-[10px] text-gray-500 font-mono leading-relaxed">
+        <div className="border-t border-[#1e2d4a]/50 pt-4 mt-auto">
+          <div className="px-2 text-[10px] font-mono leading-relaxed space-y-1 text-gray-400">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0EA5B7] animate-pulse"></span>
+              <span className="text-gray-300 font-semibold uppercase tracking-wider">System Status:</span>
+              <span className="text-[#0EA5B7] font-semibold">Ready</span>
+            </div>
             <div>Holding Company v1.0.0</div>
             <div>Currency: INR (₹)</div>
           </div>
