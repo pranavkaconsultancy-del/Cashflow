@@ -150,7 +150,6 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Logo size="sm" variant="dark" />
-                <span className="text-[10px] font-extrabold font-mono text-[#0EA5B7] uppercase px-1.5 py-0.5 bg-white/10 border border-white/10 rounded-md">Co-pilot</span>
               </div>
               <div className="flex items-center gap-2 mt-1.5">
                 <span className="text-[10px] text-white/75 font-mono uppercase tracking-wider font-semibold">Context:</span>
